@@ -6,5 +6,5 @@
     "MD041": false, // first line need not be a top-level heading (frontmatter)
   },
   "globs": ["**/*.md"],
-  "ignores": ["node_modules", "site/node_modules", "site/dist", ".cheese"],
+  "ignores": ["node_modules", "site/node_modules", "site/dist", ".cheese", ".claude"],
 }

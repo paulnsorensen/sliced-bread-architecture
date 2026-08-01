@@ -1,0 +1,42 @@
+---
+title: Sliced Bread Architecture
+description: Vertical-slice architecture with organic growth.
+template: splash
+hero:
+  tagline: Group code by business concept. Let structure emerge from pressure. Keep every dependency arrow pointing inward.
+  actions:
+    - text: Read the reference
+      link: /sliced-bread-architecture/reference/sliced-bread/
+      icon: right-arrow
+    - text: Get the agent skills
+      link: /sliced-bread-architecture/skills/
+      icon: seti:markdown
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components'
+
+## The five rules
+
+<CardGrid stagger>
+  <Card title="Import direction" icon="right-arrow">
+    All arrows point toward domains. `app/` and `adapters/` depend on `domains/*`; domains depend
+    only on `domains/common/`. Never the reverse.
+  </Card>
+  <Card title="Crust integrity" icon="seti:lock">
+    External consumers import from a slice's public index only. Internals can be renamed, split, or
+    reorganized freely — the barrel file is the contract.
+  </Card>
+  <Card title="Model purity" icon="approve-check">
+    Domain code imports stdlib, `common/`, and sibling public APIs. Infrastructure hides behind
+    ports the domain defines and adapters implement.
+  </Card>
+  <Card title="Growth justification" icon="seti:plan">
+    Every directory and abstraction has 2+ concrete uses. One file → extract siblings → facade +
+    folder. No speculative structure.
+  </Card>
+  <Card title="Event usage" icon="rocket">
+    Events resolve reverse dependencies — B reacts to A without A knowing B. They are not
+    general-purpose messaging.
+  </Card>
+</CardGrid>

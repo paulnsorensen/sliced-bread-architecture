@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config'
 import starlight from '@astrojs/starlight'
 
 export default defineConfig({
-  site: 'https://paulnsorensen.github.io',
+  site: 'https://cheeselord.dev',
   base: '/sliced-bread-architecture',
   integrations: [
     starlight({

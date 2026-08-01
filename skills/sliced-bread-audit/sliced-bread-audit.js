@@ -668,7 +668,7 @@ const existing = new Set(
     text
       .trim()
       .replace(/^<!--\s*/, '')
-      .replace(/\s*-->$/, '')
+      .replace(/\s*--!?>$/, '')
       .trim(),
   ),
 )

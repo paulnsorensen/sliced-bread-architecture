@@ -231,7 +231,7 @@ function setupPrompt() {
     DRY_RUN
       ? '2. Dry run — do NOT create labels, issues, comments, files, or mutate GitHub in any way.'
       : '2. Ensure these labels exist (create quietly if missing, ignore already-exists errors): `sliced-bread-audit`, `sev:blocker`, `sev:high`, `sev:medium`, `sev:low`.',
-    '3. Fetch fingerprints from ALL existing audit issues, open and closed, using `gh api --paginate "repos/$repo/issues?state=all&labels=sliced-bread-audit&per_page=100" --jq \'.[].body\'` and extract every `<!-- sba:... -->` marker. A genuinely empty result means existing_fingerprints=[]. Any query failure means gh_ok=false.',
+    '3. Fetch fingerprints from ALL existing audit issues, open and closed, using `gh api --paginate "repos/$repo/issues?state=all&labels=sliced-bread-audit&per_page=100" --jq \'.[].body\'` and extract each `<!-- sba:... -->` marker as bare inner text only — strip the `<!--`/`-->` wrapper, e.g. `sba:src/x.py:model-purity:12`. A genuinely empty result means existing_fingerprints=[]. Any query failure means gh_ok=false.',
     'Always return all four fields: gh_ok, repo, existing_fingerprints, and error. Use repo="" or existing_fingerprints=[] only when gh_ok=false; use error="" on success.',
   ].join('\n')
 }
@@ -360,14 +360,20 @@ function issueBody(f, evidence) {
 
 function preparedIssue(f, skippedReason) {
   const evidence = redactSecrets(f.evidence)
+  const redacted = {
+    ...f,
+    claim: redactSecrets(f.claim),
+    impact: redactSecrets(f.impact),
+    recommendation: redactSecrets(f.recommendation),
+  }
   return {
     created: false,
-    title: issueTitle(f),
+    title: issueTitle(redacted),
     labels: ['sliced-bread-audit', `sev:${f.severity}`],
-    body: issueBody(f, evidence),
+    body: issueBody(redacted, evidence),
     evidence,
-    impact: f.impact,
-    recommendation: f.recommendation,
+    impact: redacted.impact,
+    recommendation: redacted.recommendation,
     location: `${f.file}:${f.line}`,
     ...(skippedReason ? { skipped_reason: skippedReason } : {}),
   }
@@ -411,7 +417,11 @@ function errorMessage(error) {
 
 async function safeAgent(prompt, opts) {
   try {
-    return { ok: true, value: await agent(prompt, opts) }
+    const value = await agent(prompt, opts)
+    if (value === null || value === undefined) {
+      return { ok: false, error: 'agent returned no result' }
+    }
+    return { ok: true, value }
   } catch (error) {
     return { ok: false, error: errorMessage(error) }
   }
@@ -527,18 +537,18 @@ async function verifyFindings(findings, label) {
     return out
   }
 
-  const byIndex = new Map((citeOutcome.value.results || []).map((r) => [r.index, r]))
+  const results = citeOutcome.value.results || []
+  const byIndex = new Map(results.map((r) => [r.index, r]))
   const cited = []
   floor.forEach((f, i) => {
     const result = byIndex.get(i)
     if (result && result.ok) cited.push(f)
-    else
-      out.refuted.push({
-        ...f,
-        refute_reason:
-          result && result.reason ? `citation: ${result.reason}` : 'citation unconfirmed',
-      })
+    else if (result)
+      out.refuted.push({ ...f, refute_reason: `citation: ${result.reason || 'unconfirmed'}` })
+    else out.unverified.push(f)
   })
+  if (results.length < floor.length)
+    out.failure = 'citation agent returned fewer results than findings submitted'
   out.confirmed.push(
     ...cited
       .filter((f) => SEV_RANK[f.severity] < SEV_RANK.high)
@@ -548,8 +558,10 @@ async function verifyFindings(findings, label) {
   const contested = cited.filter((f) => SEV_RANK[f.severity] >= SEV_RANK.high)
   const reserved = []
   for (const finding of contested) {
-    if (budgetExhausted()) out.unverified.push(finding)
-    else reserved.push(finding)
+    if (budgetExhausted()) {
+      out.unverified.push(finding)
+      out.failure = 'budget exhausted before refutation'
+    } else reserved.push(finding)
   }
   const votes = await runBounded(reserved, (finding) =>
     safeAgent(verifyPrompt(finding), {
@@ -564,8 +576,7 @@ async function verifyFindings(findings, label) {
     const vote = votes[index]
     const location = `${finding.file}:${finding.line}`
     if (!vote.ok) {
-      const reason = `refuter failed: ${vote.error}`
-      out.refuted.push({ ...finding, refute_reason: reason })
+      out.unverified.push(finding)
       refuterOutcomes.push({ location, outcome: 'failed', reason: vote.error })
       failures.push({ stage: 'refute', slice: finding.slice, error: vote.error, location })
     } else if (vote.value.refuted) {
@@ -586,10 +597,24 @@ async function verifyFindings(findings, label) {
 
 const crossItem = { name: 'cross-slice', path: SCOPE, kind: 'cross-slice' }
 const evaluationItems = [...sliceMap.slices, crossItem]
-const evaluationResults = await runBounded(evaluationItems, async (item) => {
+const verifiedResults = await runBounded(evaluationItems, async (item) => {
+  const empty = {
+    item,
+    raw: [],
+    confirmed: [],
+    refuted: [],
+    below: [],
+    unverified: [],
+    failure: null,
+  }
   if (budgetExhausted()) {
     skippedSlices++
-    return { item, outcome: { ok: false, error: 'budget exhausted before evaluator dispatch' } }
+    failures.push({
+      stage: 'evaluate',
+      slice: item.name,
+      error: 'budget exhausted before evaluator dispatch',
+    })
+    return empty
   }
   const outcome = await safeAgent(evalPrompt(item, sliceMap.slices), {
     label: `eval:${item.name}`,
@@ -598,35 +623,23 @@ const evaluationResults = await runBounded(evaluationItems, async (item) => {
     model: 'fable',
     effort: 'high',
   })
-  return { item, outcome }
-})
-
-for (const { item, outcome } of evaluationResults) {
-  if (!outcome.ok) failures.push({ stage: 'evaluate', slice: item.name, error: outcome.error })
-}
-const successfulEvaluations = evaluationResults.filter(({ outcome }) => outcome.ok)
-const verifiedResults = []
-for (const { item, outcome } of successfulEvaluations) {
-  const raw = outcome.value.findings.map((finding) => ({ ...finding, slice: item.name }))
+  if (!outcome.ok) {
+    failures.push({ stage: 'evaluate', slice: item.name, error: outcome.error })
+    return empty
+  }
+  let raw = []
   try {
+    raw = outcome.value.findings.map((finding) => ({ ...finding, slice: item.name }))
     const verified = await verifyFindings(raw, item.name)
     if (verified.failure)
       failures.push({ stage: 'verify', slice: item.name, error: verified.failure })
-    verifiedResults.push({ item, raw, ...verified })
+    return { item, raw, ...verified }
   } catch (error) {
     const detail = errorMessage(error)
     failures.push({ stage: 'pipeline', slice: item.name, error: detail })
-    verifiedResults.push({
-      item,
-      raw,
-      confirmed: [],
-      refuted: [],
-      below: [],
-      unverified: raw,
-      failure: detail,
-    })
+    return { item, raw, confirmed: [], refuted: [], below: [], unverified: raw, failure: detail }
   }
-}
+})
 
 const rawAll = verifiedResults.flatMap((result) => result.raw)
 const confirmedAll = sortDesc(verifiedResults.flatMap((result) => result.confirmed))
@@ -651,7 +664,13 @@ const uniqueConfirmed = confirmedAll.filter((finding) => {
 const setupComplete =
   setup.gh_ok && setup.repo.length > 0 && Array.isArray(setup.existing_fingerprints)
 const existing = new Set(
-  (setupComplete ? setup.existing_fingerprints : []).map((text) => text.trim()),
+  (setupComplete ? setup.existing_fingerprints : []).map((text) =>
+    text
+      .trim()
+      .replace(/^<!--\s*/, '')
+      .replace(/\s*--!?>$/, '')
+      .trim(),
+  ),
 )
 const fresh = uniqueConfirmed.filter((finding) => !existing.has(issueFingerprint(finding)))
 const existingDupes = uniqueConfirmed.length - fresh.length

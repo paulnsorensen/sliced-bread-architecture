@@ -4,6 +4,8 @@ Vertical-slice architecture with organic growth: group code by business
 concept, let structure emerge from pressure, and keep every dependency arrow
 pointing inward.
 
+Docs site: <https://cheeselord.dev/sliced-bread-architecture/>
+
 ```text
 app/       →  domains/*  →  domains/common/
 adapters/  →  domains/*

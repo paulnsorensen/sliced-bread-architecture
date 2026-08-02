@@ -2,8 +2,8 @@
 
 ## Supported versions
 
-The `main` branch and the most recent tagged release receive security
-fixes. Older releases are best-effort.
+The `main` branch receives security fixes. There are no tagged
+releases yet.
 
 ## Reporting a vulnerability
 
@@ -33,7 +33,7 @@ already public.
 In scope:
 
 - The source code in this repository.
-- Released artifacts (binaries, packages) produced from this repo.
+- The published documentation site built from this repo.
 
 Out of scope:
 

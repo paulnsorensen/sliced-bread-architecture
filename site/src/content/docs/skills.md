@@ -10,6 +10,7 @@ directory ships agent tooling that enforces the architecture:
 | --------------------- | --------------- | -------------------------------------------------- |
 | `sliced-bread-review` | Skill           | Review a bounded change set against the five rules |
 | `sliced-bread-audit`  | Workflow script | Multi-agent full-repo audit that files GH issues   |
+| `sliced-bread-depth`  | Skill           | Score each slice as a deep module; flag fat crusts |
 
 ## sliced-bread-review
 
@@ -35,3 +36,17 @@ cp skills/sliced-bread-audit/sliced-bread-audit.js ~/.claude/workflows/
 
 Invoke with `/sliced-bread-audit [scope]`; pass `{ dry_run: true }` to
 preview without filing issues.
+
+## sliced-bread-depth
+
+A Claude Code skill that scores every slice as a deep module: it classifies
+each crust's shape (thin facade, framework-bound, service/sim), measures the
+implementation share (crust LOC ÷ slice total LOC), and recommends which
+crusts to break down — extract, narrow, watch, healthy, or wide-by-intent —
+with the top three extractions ranked by ROI. Complements the other two:
+`sliced-bread-review` gates changes, `sliced-bread-audit` sweeps rules,
+`sliced-bread-depth` scores depth.
+
+```bash
+cp -r skills/sliced-bread-depth ~/.claude/skills/
+```

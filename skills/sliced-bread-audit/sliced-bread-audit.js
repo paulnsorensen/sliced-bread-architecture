@@ -31,9 +31,10 @@ export const meta = {
 //   { scope?: string, min_severity?: 'blocker'|'high'|'medium'|'low',
 //     dry_run?: boolean, max_issues?: number, workers?: number }
 //
-// The architecture rubric below is inlined from
-// ~/.agents/reference/sliced-bread.md so evaluators work in any repo without
-// depending on that file being readable.
+// The architecture rubric below is inlined from reference/sliced-bread.md in
+// the sliced-bread-architecture repository — the canonical source for the rules
+// and their severities — so evaluators work in any repo without depending on
+// that file being readable.
 
 // ── args ────────────────────────────────────────────────────────────────
 const opts =
@@ -55,26 +56,81 @@ if (!(Number.isInteger(WORKERS) && WORKERS >= 1 && WORKERS <= 16)) {
   return { error: `workers must be an integer from 1 to 16, got: ${WORKERS}` }
 }
 
+// ── canonical doctrine blocks ───────────────────────────────────────────
+// Copied verbatim from reference/sliced-bread.md; the doctrine-sync check fails
+// the build if they drift. They sit inside comments so every marker and block
+// line stays byte-identical at column 0 — the arrows block carries a fenced code
+// block, which a JS template literal cannot hold unescaped.
+const doctrineBlock = (carrier) => carrier.toString().match(/\/\*\n([\s\S]*?)\n\*\//)[1]
+
+const ARROWS_BLOCK = doctrineBlock(() => {
+  /*
+<!-- doctrine:arrows:start -->
+
+```text
+entrypoints/   ->  app/  ->  domains/*  ->  domains/common/
+app/bootstrap  ->  adapters/          (composition root only)
+adapters/      ->  domains/*          (implement domain ports)
+
+Never:
+  app/use_cases/*  ->  adapters/*
+  domains/*        ->  adapters/ | app/ | entrypoints/
+  adapters/*       ->  app/ | entrypoints/
+  common/          ->  sibling domains
+  anything         ->  entrypoints/
+```
+
+<!-- doctrine:arrows:end -->
+*/
+})
+
+const GROWTH_GUARDS_BLOCK = doctrineBlock(() => {
+  /*
+<!-- doctrine:growth-guards:start -->
+
+- New single-file concepts that stayed single files are correct; do not flag them.
+- A dispatcher introduced to break a cross-slice cycle is not premature abstraction, even with one event and one subscriber.
+- Numeric thresholds are advisory signals, not gradeable violations; grade implementation share, public-surface size, and lifetime mixing.
+
+<!-- doctrine:growth-guards:end -->
+*/
+})
+
+const SEVERITY_BLOCK = doctrineBlock(() => {
+  /*
+<!-- doctrine:severity:start -->
+
+| Severity | Meaning                                                                                                                                                              |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| blocker  | Inverted dependency arrow; infrastructure executing at import time in a domain file                                                                                  |
+| high     | Cross-slice internal import; circular slice dependency; crust bypass with multiple consumers                                                                         |
+| medium   | Model-purity drift (infrastructure imported, not executed at import time); premature abstraction; events-as-messaging; adapter imported outside the composition root |
+| low      | Single-consumer crust bypass; naming drift                                                                                                                           |
+
+<!-- doctrine:severity:end -->
+*/
+})
+
 // ── rubric (inlined Sliced Bread rules) ─────────────────────────────────
 const RUBRIC = [
-  'SLICED BREAD ARCHITECTURE RUBRIC (vertical slices; each slice exposes a crust/index public API):',
+  'SLICED BREAD ARCHITECTURE RUBRIC (vertical slices; each slice exposes a crust — its public seam):',
   'Dependency direction (arrows may ONLY point this way):',
-  '  app/ -> domains/*  |  adapters/ -> domains/*  |  domains/* -> domains/common/',
-  '  NEVER: domains/* -> adapters/*, domains/* -> app/*, adapters/* -> app/*, common/ -> sibling domains.',
+  ARROWS_BLOCK,
   'Checks:',
-  '  1. import-direction — do all arrows point inward (toward domains)? Any inversion is a blocker.',
-  '  2. crust-integrity — external consumers import ONLY from the slice index/barrel file, never internals (e.g. from domains.pricing.discount_calculator instead of from domains.pricing).',
+  '  1. import-direction — do all arrows point in a permitted direction? Only the composition root (app/bootstrap, main) may import concrete adapters, and nothing imports entrypoints/. Any inversion is a blocker.',
+  '  2. crust-integrity — external consumers import ONLY the slice public seam in the language native form (exported identifiers in Go, the package __init__ surface in Python, an index module in TypeScript, a public class surface elsewhere), never internals (e.g. from domains.pricing.discount_calculator instead of from domains.pricing).',
   '  3. model-purity — domain files import only stdlib, common/, and sibling slice PUBLIC APIs. A domain file importing an HTTP client / ORM / queue is a violation; the fix is a port (Protocol) implemented by an adapter.',
   '  4. growth-justification — every directory/abstraction has 2+ concrete uses. Abstract base with one impl, EventBus with one event, registry with one plugin = premature abstraction.',
-  '  5. event-usage — events exist for reverse dependencies (B reacts to A without A knowing B). Cycles between slices must resolve via events, not mutual imports. Events must not be general-purpose messaging.',
+  '  5. event-usage — events exist for reverse dependencies (B reacts to A without A knowing B). Cycles between slices must resolve via events typed in common/, not mutual imports. Events must not be general-purpose messaging.',
+  'Growth guards — false positives to suppress when grading growth:',
+  GROWTH_GUARDS_BLOCK,
   'Also audit general quality: correctness (broken behaviour, silent failures, edge cases), security (tainted input, secrets, unsafe parsing), complexity (long functions, parameter sprawl, redundant state), deslop (dead code, duplicated logic, AI residue), tests (weak assertions, mocked SUT).',
 ].join('\n')
 
 const SEVERITY_GUIDE = [
-  'Severity: blocker = inverted dependency arrow, security hole, or broken behaviour on a main path.',
-  'high = cross-slice internal import, circular slice dependency, crust bypass with multiple consumers, real bug.',
-  'medium = model-purity drift, premature abstraction, meaningful complexity/dead-code debt.',
-  'low = naming, minor deslop, single-consumer crust bypass.',
+  'Architecture severities — grade against this table exactly:',
+  SEVERITY_BLOCK,
+  'Non-architecture severities: blocker = security hole or broken behaviour on a main path; high = a real bug; medium = meaningful complexity or dead-code debt, or test assertions too weak to catch a regression; low = minor deslop.',
   'Do NOT manufacture findings — an empty list is a valid outcome. Every finding needs file + line + quoted evidence.',
 ].join('\n')
 
@@ -95,7 +151,10 @@ const SLICE_MAP_SCHEMA = {
         properties: {
           name: { type: 'string' },
           path: { type: 'string' },
-          kind: { type: 'string', enum: ['domain', 'app', 'adapter', 'common', 'infra', 'other'] },
+          kind: {
+            type: 'string',
+            enum: ['domain', 'entrypoint', 'app', 'adapter', 'common', 'infra', 'other'],
+          },
           key_files: { type: 'array', items: { type: 'string' } },
         },
       },

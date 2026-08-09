@@ -15,10 +15,10 @@ description: >-
 
 Score every slice as a deep module: a small, stable public surface hiding
 substantial implementation. A slice can pass every boundary check while its
-crust _is_ the implementation — a 900-line barrel over two trivial helpers is
-compliant but shallow. The full rationale lives in
-[`reference/sliced-bread.md`](../../reference/sliced-bread.md); this skill is
-the measuring pass.
+crust _is_ the implementation — a 900-line crust over two trivial helpers is
+compliant but shallow. The full rationale lives in the
+[Sliced Bread reference](https://cheeselord.dev/sliced-bread-architecture/reference/sliced-bread/);
+this skill is the measuring pass.
 
 ## Scope
 
@@ -29,8 +29,12 @@ classify them; do not flag their existence.
 
 ## Step 1 — Inventory
 
-Find each slice's crust (the index/barrel/public-API file) and classify its
-shape:
+Find each slice's crust — its public seam in the language's native form:
+exported identifiers in Go, the package `__init__` surface in Python, an index
+module in TypeScript, a public class surface elsewhere. Apply the surface test:
+can a consumer see a small, obvious set of externally usable operations at the
+top level, with no digging into internals and no hundred-symbol entry point?
+Classify the crust's shape:
 
 | Shape           | Signature                                                              |
 | --------------- | ---------------------------------------------------------------------- |
@@ -66,7 +70,7 @@ Calibrations that keep the metric fair:
   of its slice's mass is the smell.
 - **Framework-bound crusts get a cohesion allowance.** Framework callbacks
   (lifecycle, physics, render) must live on the subclass; extraction targets
-  are plain helper objects the crust owns, not a second barrel.
+  are plain helper objects the crust owns, not a second public seam.
 - **Many internal files is not a finding.** A wide crust over thirty deep
   modules has an API-clustering problem — group and narrow the surface — not
   a depth problem. Do not recommend splitting the slice.
@@ -78,6 +82,16 @@ Calibrations that keep the metric fair:
 - **Compare siblings.** Two slices implementing the same pattern with
   opposite depth (one delegates its hot loop, one inlines it) is the
   highest-confidence finding — the repo already contains the target shape.
+
+Growth guards — false positives to suppress when grading depth:
+
+<!-- doctrine:growth-guards:start -->
+
+- New single-file concepts that stayed single files are correct; do not flag them.
+- A dispatcher introduced to break a cross-slice cycle is not premature abstraction, even with one event and one subscriber.
+- Numeric thresholds are advisory signals, not gradeable violations; grade implementation share, public-surface size, and lifetime mixing.
+
+<!-- doctrine:growth-guards:end -->
 
 ## Verdicts
 

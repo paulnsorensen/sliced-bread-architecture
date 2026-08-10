@@ -8,7 +8,7 @@ export default defineConfig({
     starlight({
       title: 'Sliced Bread',
       description:
-        'Vertical-slice architecture with organic growth: structure emerges from pressure, and every dependency arrow points inward.',
+        'Vertical-slice architecture with organic growth: structure emerges from pressure, and every dependency arrow points in a permitted direction.',
       social: [
         {
           icon: 'github',

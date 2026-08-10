@@ -3,6 +3,10 @@
 Supplement to the compact rules in the global agent instructions. Read this when
 reviewing architecture decisions or planning new domain structure.
 
+This file is the canonical source for the rules and their severities. Every other
+copy — the site page, the skills, the audit rubric — carries the marker-fenced blocks
+below verbatim.
+
 ## Why Vertical Slices?
 
 Layered architecture (controllers → services → repositories) groups by technical role.
@@ -13,6 +17,25 @@ The tradeoff: cross-cutting concerns (auth, logging, caching) live in adapters o
 middleware, not sprinkled across slices. If you're tempted to add auth logic inside
 a domain slice, that's a signal it belongs in `app/` or `adapters/`.
 
+## The Layers
+
+- **`entrypoints/`** — driving adapters, one per medium (CLI, HTTP server, worker,
+  scheduler). Each translates an outside trigger into a call on `app/`. Nothing
+  imports `entrypoints/`.
+- **`app/`** — use cases plus the composition root. Only the composition-root module
+  (`app/bootstrap`, `main`) may import concrete adapters and inject them. A use case
+  that imports an adapter is a violation.
+- **`adapters/`** — driven adapters only: database, HTTP client, queue, filesystem.
+  They implement ports the domain defines.
+- **`domains/*`** — the slices. Business concepts, their models, and their ports.
+- **`domains/common/`** — the shared kernel, written `common/` for short throughout
+  this document: value types, cross-slice events, shared error types.
+
+`entrypoints/` is the reference name for a role, not a mandated directory string.
+Go's `cmd/` and .NET's `Web`/`API` projects satisfy it. The arrows in the
+quick-check below describe permitted direction, not required directories — a repo
+with no `entrypoints/` is not in violation.
+
 ## Why Organic Growth?
 
 Pre-creating folders, abstract base classes, and registries for a single implementation
@@ -20,17 +43,34 @@ is speculative architecture. It costs complexity now for flexibility that may ne
 be needed. The growth pattern (one file → extract sibling → facade + folder) means
 structure emerges from actual pressure, not imagination.
 
-**Growth triggers:**
+**Advisory growth signals** — these prompt a look, never a graded violation:
 
 - A file passes ~200 lines or holds 3+ distinct concepts → extract siblings
 - 3+ related files cluster around a sub-concept → create subdirectory
 - A file becomes an import hub for its children → it's now a facade
+
+What tools grade instead is premature abstraction (an abstraction standing on a
+single concrete use), implementation share (crust size relative to slice size),
+public-surface size, and lifetime mixing.
 
 **Not growth triggers:**
 
 - "We might need this later"
 - "This looks like it could be its own module"
 - A single implementation of a pattern (one adapter, one strategy, one handler)
+
+**Growth guards** — false positives to suppress when grading growth. "Numeric
+thresholds" in the guards below means the advisory signals above (~200 lines, 3+
+concepts, 3+ clustered files) — not the 2+-concrete-uses check, which stays
+gradeable:
+
+<!-- doctrine:growth-guards:start -->
+
+- New single-file concepts that stayed single files are correct; do not flag them.
+- A dispatcher introduced to break a cross-slice cycle is not premature abstraction, even with one event and one subscriber.
+- Numeric thresholds are advisory signals, not gradeable violations; grade implementation share, public-surface size, and lifetime mixing.
+
+<!-- doctrine:growth-guards:end -->
 
 ## Anti-Patterns
 
@@ -40,12 +80,12 @@ structure emerges from actual pressure, not imagination.
 # BAD — reaching past the crust
 from domains.pricing.discount_calculator import DiscountCalculator
 
-# GOOD — import from the public API
+# GOOD — import from the public seam
 from domains.pricing import calculate_discount
 ```
 
 Why it matters: internal files can be renamed, split, or reorganized freely.
-The index/barrel file is a contract; internals are implementation details.
+The crust is a contract; internals are implementation details.
 
 ### Domain importing infrastructure
 
@@ -61,6 +101,21 @@ class PaymentGateway(Protocol):
 Why it matters: domain models are the most stable code. Coupling them to
 infrastructure means infrastructure changes ripple into business logic.
 
+### Use case importing a concrete adapter
+
+```python
+# BAD — app/use_cases/checkout.py picks its own infrastructure
+from adapters.stripe import StripeClient
+
+# GOOD — the use case takes the port; app/bootstrap injects the adapter
+def checkout(orders: OrderRepository, payments: PaymentGateway) -> None: ...
+```
+
+Why it matters: the composition root is the one place that knows which concrete
+things exist. A use case that reaches for an adapter is the same coupling model
+purity prevents one layer down, and it makes the use case untestable without the
+real infrastructure.
+
 ### Circular dependencies between slices
 
 ```text
@@ -68,8 +123,9 @@ infrastructure means infrastructure changes ripple into business logic.
 ```
 
 Resolution: use domain events. `orders` emits `OrderPlaced`, `pricing` subscribes.
-The event lives in `common/events` (the shared kernel) or in the emitting slice's
-public API.
+The event lives in `common/` — both slices import it from the shared kernel, so
+neither imports the other. Placing the event in the emitting slice's public API does
+not break the cycle: the subscriber still imports the emitter.
 
 ### Adapters importing app layer
 
@@ -81,20 +137,39 @@ from app.use_cases.checkout import Checkout
 from domains.orders import OrderRepository
 ```
 
-Why it matters: adapters implement domain contracts. They shouldn't know how the
-application orchestrates those contracts.
+Why it matters: driven adapters implement domain contracts. They shouldn't know how
+the application orchestrates those contracts. Code that does need to call the
+application is a driving adapter and belongs in `entrypoints/`.
 
 ### Premature abstraction
 
 ```python
 # BAD — AbstractRepositoryFactory with one concrete implementation
-# BAD — EventBus interface when only one event exists
+# BAD — EventBus interface when no event exists yet
 # BAD — PluginRegistry with a single plugin
 
 # GOOD — just use the concrete thing until you need the abstraction
 ```
 
+A dispatcher introduced to break a real cross-slice cycle is not an instance of this
+anti-pattern, even with one event and one subscriber.
+
 ## Boundary Decisions
+
+### What is a slice's crust?
+
+A slice's crust is its public seam in the language's native form: exported identifiers
+in Go, the package `__init__` surface in Python, an index module in TypeScript, a
+public class surface elsewhere. It is not a barrel file as such — Go has no barrels,
+and current TypeScript build tooling discourages them.
+
+The test is a surface test: can a consumer see a small, obvious set of externally
+usable operations at the top level, with no digging into internals and no
+hundred-symbol entry point?
+
+Slices stay local and roughly DDD until application infrastructure requires the
+hexagonal seams. Don't fit a slice with ports and adapters before it talks to
+anything outside the process.
 
 ### When does something belong in `common/`?
 
@@ -103,12 +178,14 @@ application orchestrates those contracts.
 - Shared exceptions or error types
 
 **Not common:** anything used by only one slice. Don't pre-promote to common
-"just in case" another slice might need it.
+"just in case" another slice might need it. Cycle-breaking events are the stated
+exception: they live in `common/` because that is what breaks the cycle.
 
 ### When do you introduce an adapter?
 
 When domain code needs to talk to something external (database, API, filesystem,
-message queue). The domain defines a protocol (port), the adapter implements it.
+message queue). The domain defines a protocol (port), the adapter implements it, and
+the composition root wires the two together.
 
 Don't create an adapter for in-process utilities (string formatting, date math,
 pure computation). Those are just functions.
@@ -117,8 +194,13 @@ pure computation). Those are just functions.
 
 - **Inside the slice:** operations on a single domain concept (create order,
   update order status). These are domain services or methods on the entity.
-- **In `app/use_cases/`:** orchestration across 2+ slices (checkout needs orders +
-  pricing + inventory). The use case imports from multiple slice public APIs.
+- **Straight against a sibling slice:** in-process queries and calculations. A slice
+  may import a sibling's public seam directly for these; it is a natural dependency,
+  not orchestration.
+- **In `app/use_cases/`:** the operation needs an entrypoint (it is triggered from
+  outside) or a gateway (it must reach outside through a port). Orchestration across
+  2+ slices lands here too — the use case imports from multiple slice public seams
+  and receives its adapters from the composition root.
 
 ### When do you use events vs direct imports?
 
@@ -127,27 +209,60 @@ pure computation). Those are just functions.
 - **Events:** slice B needs to react to something slice A did, but slice A shouldn't
   know about slice B. This prevents cycles and keeps the emitter independent.
 
-Rule of thumb: if adding the import would create a cycle, use an event.
+Rule of thumb: if adding the import would create a cycle, use an event, and put the
+event type in `common/`.
+
+Event machinery is staged — take the earliest stage that works:
+
+1. **Framework-native publisher.** If the framework ships one (Spring's
+   `ApplicationEventPublisher`, for example), call it directly. The
+   wrap-what-you-do-not-control rule applies to external dependencies; it does not
+   extend to a framework's own event publisher.
+2. **Domain publish port.** With no framework publisher, the domain defines a publish
+   port and a minimal in-process dispatcher owned by `app/` implements it.
+3. **Durable delivery.** Outbox records, retries, and delivery guarantees enter only
+   when delivery leaves the process.
 
 ## Dependency Direction Quick-Check
 
+<!-- doctrine:arrows:start -->
+
 ```text
-app/           →  domains/*     →  domains/common/
-adapters/      →  domains/*
+entrypoints/   ->  app/  ->  domains/*  ->  domains/common/
+app/bootstrap  ->  adapters/          (composition root only)
+adapters/      ->  domains/*          (implement domain ports)
 
 Never:
-  domains/*    →  adapters/*
-  domains/*    →  app/*
-  adapters/*   →  app/*
-  common/      →  sibling domains
+  app/use_cases/*  ->  adapters/*
+  domains/*        ->  adapters/ | app/ | entrypoints/
+  adapters/*       ->  app/ | entrypoints/
+  common/          ->  sibling domains
+  anything         ->  entrypoints/
 ```
+
+<!-- doctrine:arrows:end -->
 
 ## Reviewing Against Sliced Bread
 
 When reviewing code for architecture compliance, check:
 
-1. **Import direction** — do all arrows point inward (toward domains)?
-2. **Crust integrity** — are external consumers importing from index files only?
+1. **Import direction** — do all arrows point in a permitted direction? Only the
+   composition root imports concrete adapters, and nothing imports `entrypoints/`.
+2. **Crust integrity** — are external consumers using the slice's public seam rather
+   than reaching into internals?
 3. **Model purity** — do domain files import only stdlib, common, and sibling public APIs?
 4. **Growth justification** — does every directory/abstraction have 2+ concrete uses?
 5. **Event usage** — are events used for reverse deps, not passed around as general-purpose messaging?
+
+### Severity
+
+<!-- doctrine:severity:start -->
+
+| Severity | Meaning                                                                                                                                                              |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| blocker  | Inverted dependency arrow; infrastructure executing at import time in a domain file                                                                                  |
+| high     | Cross-slice internal import; circular slice dependency; crust bypass with multiple consumers                                                                         |
+| medium   | Model-purity drift (infrastructure imported, not executed at import time); premature abstraction; events-as-messaging; adapter imported outside the composition root |
+| low      | Single-consumer crust bypass; naming drift                                                                                                                           |
+
+<!-- doctrine:severity:end -->

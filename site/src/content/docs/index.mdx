@@ -3,7 +3,7 @@ title: Sliced Bread Architecture
 description: Vertical-slice architecture with organic growth.
 template: splash
 hero:
-  tagline: Group code by business concept. Let structure emerge from pressure. Keep every dependency arrow pointing inward.
+  tagline: Group code by business concept. Let structure emerge from pressure. Keep every dependency arrow pointing in a permitted direction.
   actions:
     - text: Read the reference
       link: /sliced-bread-architecture/reference/sliced-bread/
@@ -20,12 +20,15 @@ import { Card, CardGrid } from '@astrojs/starlight/components'
 
 <CardGrid stagger>
   <Card title="Import direction" icon="right-arrow">
-    All arrows point toward domains. `app/` and `adapters/` depend on `domains/*`; domains depend
-    only on `domains/common/`. Never the reverse.
+    Arrows point in a permitted direction: `entrypoints/` → `app/` → `domains/*` →
+    `domains/common/`, plus `app/bootstrap` → `adapters/`. A slice may import a sibling slice's
+    public API directly. Only the composition root imports concrete adapters, and nothing imports
+    `entrypoints/`.
   </Card>
   <Card title="Crust integrity" icon="seti:lock">
-    External consumers import from a slice's public index only. Internals can be renamed, split, or
-    reorganized freely — the barrel file is the contract.
+    External consumers use a slice's public seam in the language's native form — exported
+    identifiers, a package `__init__`, an index module. Internals can be renamed, split, or
+    reorganized freely.
   </Card>
   <Card title="Model purity" icon="approve-check">
     Domain code imports stdlib, `common/`, and sibling public APIs. Infrastructure hides behind
@@ -33,7 +36,7 @@ import { Card, CardGrid } from '@astrojs/starlight/components'
   </Card>
   <Card title="Growth justification" icon="seti:plan">
     Every directory and abstraction has 2+ concrete uses. One file → extract siblings → facade +
-    folder. No speculative structure.
+    folder. Numeric triggers are advisory signals that prompt a look, not gradeable thresholds.
   </Card>
   <Card title="Event usage" icon="rocket">
     Events resolve reverse dependencies — B reacts to A without A knowing B. They are not

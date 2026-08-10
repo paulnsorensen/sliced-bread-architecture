@@ -13,7 +13,8 @@ description: >-
 # Sliced Bread Review
 
 Review the target change set against the Sliced Bread architecture. The full
-rationale lives in [`reference/sliced-bread.md`](../../reference/sliced-bread.md);
+rationale lives at
+<https://cheeselord.dev/sliced-bread-architecture/reference/sliced-bread/>;
 this skill is the operational checklist.
 
 ## Scope
@@ -33,20 +34,38 @@ offending import or definition for each finding.
 
 ### 1. Import direction
 
-Arrows may only point inward:
+Arrows may only point in a permitted direction. Only the composition root
+(`app/bootstrap`, `main`) may import concrete adapters, and nothing imports
+`entrypoints/`. A slice may import a sibling slice's public seam directly.
+The arrows describe permitted direction, not required directories — a repo with
+no `entrypoints/` layer is not in violation.
+
+<!-- doctrine:arrows:start -->
 
 ```text
-app/       →  domains/*  →  domains/common/
-adapters/  →  domains/*
+entrypoints/   ->  app/  ->  domains/*  ->  domains/common/
+app/bootstrap  ->  adapters/          (composition root only)
+adapters/      ->  domains/*          (implement domain ports)
+
+Never:
+  app/use_cases/*  ->  adapters/*
+  domains/*        ->  adapters/ | app/ | entrypoints/
+  adapters/*       ->  app/ | entrypoints/
+  common/          ->  sibling domains
+  anything         ->  entrypoints/
 ```
 
-Never: `domains/* → adapters/*`, `domains/* → app/*`, `adapters/* → app/*`,
-`common/ → sibling domains`. Any inversion is a **blocker**.
+<!-- doctrine:arrows:end -->
+
+Any inversion of these arrows is a **blocker**; a use case importing a concrete
+adapter is **medium**.
 
 ### 2. Crust integrity
 
-External consumers import only from a slice's index/barrel file, never its
-internals. `from domains.pricing import calculate_discount` is fine;
+External consumers use a slice's public seam in the language's native form —
+exported identifiers in Go, the package `__init__` surface in Python, an index
+module in TypeScript, a public class surface elsewhere — never its internals.
+`from domains.pricing import calculate_discount` is fine;
 `from domains.pricing.discount_calculator import ...` is a violation —
 **high** with multiple consumers, **low** with one.
 
@@ -55,30 +74,48 @@ internals. `from domains.pricing import calculate_discount` is fine;
 Domain files import only stdlib, `common/`, and sibling slice public APIs.
 A domain file importing an HTTP client, ORM, or queue is a violation; the fix
 is a port (protocol) defined in the domain and implemented by an adapter.
-**Medium**, or **blocker** if the infrastructure call executes at import time.
+**Medium**, escalating to **blocker** only when the infrastructure call
+executes at import time.
 
 ### 4. Growth justification
 
 Every new directory or abstraction needs 2+ concrete uses. An abstract base
-with one implementation, an event bus with one event, or a registry with one
-plugin is premature abstraction — **medium**. New single-file concepts that
-stayed single files are correct; do not flag them.
+with one implementation, an event bus interface when no event exists yet, or a
+registry with one plugin is premature abstraction — **medium**. "Numeric
+thresholds" in the guards below means the advisory growth signals (~200 lines,
+3+ concepts, 3+ clustered files), not this check. Suppress these false
+positives:
+
+<!-- doctrine:growth-guards:start -->
+
+- New single-file concepts that stayed single files are correct; do not flag them.
+- A dispatcher introduced to break a cross-slice cycle is not premature abstraction, even with one event and one subscriber.
+- Numeric thresholds are advisory signals, not gradeable violations; grade implementation share, public-surface size, and lifetime mixing.
+
+<!-- doctrine:growth-guards:end -->
 
 ### 5. Event usage
 
 Events exist for reverse dependencies: B reacts to A without A knowing B.
-Cycles between slices must resolve via events, not mutual imports (**high**).
+Cycles between slices must resolve via events typed in `common/`, not mutual
+imports (**high**).
 Events used as general-purpose messaging where a direct import is the natural
 dependency are a **medium** finding.
 
 ## Severity
 
-| Severity | Meaning                                                              |
-| -------- | -------------------------------------------------------------------- |
-| blocker  | Inverted dependency arrow; infrastructure executing in a domain file |
-| high     | Cross-slice internal import; circular slice dependency               |
-| medium   | Model-purity drift; premature abstraction; events-as-messaging       |
-| low      | Single-consumer crust bypass; naming drift                           |
+The severities cited in the checks above derive from this table.
+
+<!-- doctrine:severity:start -->
+
+| Severity | Meaning                                                                                                                                                              |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| blocker  | Inverted dependency arrow; infrastructure executing at import time in a domain file                                                                                  |
+| high     | Cross-slice internal import; circular slice dependency; crust bypass with multiple consumers                                                                         |
+| medium   | Model-purity drift (infrastructure imported, not executed at import time); premature abstraction; events-as-messaging; adapter imported outside the composition root |
+| low      | Single-consumer crust bypass; naming drift                                                                                                                           |
+
+<!-- doctrine:severity:end -->
 
 ## Output
 

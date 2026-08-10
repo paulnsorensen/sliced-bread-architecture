@@ -7,6 +7,7 @@ codebases.
 | --------------------- | --------------- | -------------------------------------------------- |
 | `sliced-bread-review` | Skill           | Review a bounded change set against the five rules |
 | `sliced-bread-audit`  | Workflow script | Multi-agent full-repo audit that files GH issues   |
+| `sliced-bread-depth`  | Skill           | Score each slice as a deep module; flag fat crusts |
 
 ## Installing a skill
 

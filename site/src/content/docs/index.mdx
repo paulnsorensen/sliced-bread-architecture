@@ -3,7 +3,7 @@ title: Sliced Bread Architecture
 description: Vertical-slice architecture with organic growth.
 template: splash
 hero:
-  tagline: Group code by business concept. Let structure emerge from pressure. Keep every dependency arrow pointing inward.
+  tagline: Group code by business concept. Let structure emerge from pressure. Keep every dependency arrow pointing in a permitted direction.
   actions:
     - text: Read the reference
       link: /sliced-bread-architecture/reference/sliced-bread/
@@ -20,9 +20,10 @@ import { Card, CardGrid } from '@astrojs/starlight/components'
 
 <CardGrid stagger>
   <Card title="Import direction" icon="right-arrow">
-    Arrows point inward: `entrypoints/` → `app/` → `domains/*` → `domains/common/`. A slice may
-    import a sibling slice's public API directly. Only the composition root imports concrete
-    adapters, and nothing imports `entrypoints/`.
+    Arrows point in a permitted direction: `entrypoints/` → `app/` → `domains/*` →
+    `domains/common/`, plus `app/bootstrap` → `adapters/`. A slice may import a sibling slice's
+    public API directly. Only the composition root imports concrete adapters, and nothing imports
+    `entrypoints/`.
   </Card>
   <Card title="Crust integrity" icon="seti:lock">
     External consumers use a slice's public seam in the language's native form — exported

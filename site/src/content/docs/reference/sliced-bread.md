@@ -28,8 +28,8 @@ a domain slice, that's a signal it belongs in `app/` or `adapters/`.
 - **`adapters/`** — driven adapters only: database, HTTP client, queue, filesystem.
   They implement ports the domain defines.
 - **`domains/*`** — the slices. Business concepts, their models, and their ports.
-- **`domains/common/`** — the shared kernel: value types, cross-slice events, shared
-  error types.
+- **`domains/common/`** — the shared kernel, written `common/` for short throughout
+  this document: value types, cross-slice events, shared error types.
 
 `entrypoints/` is the reference name for a role, not a mandated directory string.
 Go's `cmd/` and .NET's `Web`/`API` projects satisfy it. The arrows in the
@@ -49,7 +49,8 @@ structure emerges from actual pressure, not imagination.
 - 3+ related files cluster around a sub-concept → create subdirectory
 - A file becomes an import hub for its children → it's now a facade
 
-What tools grade instead is implementation share (crust size relative to slice size),
+What tools grade instead is premature abstraction (an abstraction standing on a
+single concrete use), implementation share (crust size relative to slice size),
 public-surface size, and lifetime mixing.
 
 **Not growth triggers:**
@@ -58,7 +59,10 @@ public-surface size, and lifetime mixing.
 - "This looks like it could be its own module"
 - A single implementation of a pattern (one adapter, one strategy, one handler)
 
-**Growth guards** — false positives to suppress when grading growth:
+**Growth guards** — false positives to suppress when grading growth. "Numeric
+thresholds" in the guards below means the advisory signals above (~200 lines, 3+
+concepts, 3+ clustered files) — not the 2+-concrete-uses check, which stays
+gradeable:
 
 <!-- doctrine:growth-guards:start -->
 

@@ -2,13 +2,14 @@
 
 Vertical-slice architecture with organic growth: group code by business
 concept, let structure emerge from pressure, and keep every dependency arrow
-pointing inward.
+pointing in a permitted direction.
 
 Docs site: <https://cheeselord.dev/sliced-bread-architecture/>
 
 ```text
-app/       →  domains/*  →  domains/common/
-adapters/  →  domains/*
+entrypoints/   →  app/  →  domains/*  →  domains/common/
+app/bootstrap  →  adapters/          (composition root only)
+adapters/      →  domains/*
 ```
 
 ## What's here
@@ -21,8 +22,11 @@ adapters/  →  domains/*
 
 ## The five rules
 
-1. **Import direction** — all arrows point toward domains.
-2. **Crust integrity** — consumers import from a slice's public index only.
+1. **Import direction** — every arrow points in a permitted direction; only the
+   composition root imports concrete adapters, and nothing imports
+   `entrypoints/`.
+2. **Crust integrity** — external consumers use a slice's public seam in the
+   language's native form, never its internals.
 3. **Model purity** — domain code imports stdlib, `common/`, and sibling
    public APIs; infrastructure hides behind ports.
 4. **Growth justification** — every directory and abstraction has 2+

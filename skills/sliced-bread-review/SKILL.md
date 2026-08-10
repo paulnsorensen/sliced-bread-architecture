@@ -36,7 +36,9 @@ offending import or definition for each finding.
 
 Arrows may only point in a permitted direction. Only the composition root
 (`app/bootstrap`, `main`) may import concrete adapters, and nothing imports
-`entrypoints/`.
+`entrypoints/`. A slice may import a sibling slice's public seam directly.
+The arrows describe permitted direction, not required directories — a repo with
+no `entrypoints/` layer is not in violation.
 
 <!-- doctrine:arrows:start -->
 
@@ -78,8 +80,11 @@ executes at import time.
 ### 4. Growth justification
 
 Every new directory or abstraction needs 2+ concrete uses. An abstract base
-with one implementation, an event bus with one event, or a registry with one
-plugin is premature abstraction — **medium**. Suppress these false positives:
+with one implementation, an event bus interface when no event exists yet, or a
+registry with one plugin is premature abstraction — **medium**. "Numeric
+thresholds" in the guards below means the advisory growth signals (~200 lines,
+3+ concepts, 3+ clustered files), not this check. Suppress these false
+positives:
 
 <!-- doctrine:growth-guards:start -->
 
@@ -92,7 +97,8 @@ plugin is premature abstraction — **medium**. Suppress these false positives:
 ### 5. Event usage
 
 Events exist for reverse dependencies: B reacts to A without A knowing B.
-Cycles between slices must resolve via events, not mutual imports (**high**).
+Cycles between slices must resolve via events typed in `common/`, not mutual
+imports (**high**).
 Events used as general-purpose messaging where a direct import is the natural
 dependency are a **medium** finding.
 

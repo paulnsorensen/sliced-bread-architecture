@@ -61,9 +61,16 @@ if (!(Number.isInteger(WORKERS) && WORKERS >= 1 && WORKERS <= 16)) {
 // the build if they drift. They sit inside comments so every marker and block
 // line stays byte-identical at column 0 — the arrows block carries a fenced code
 // block, which a JS template literal cannot hold unescaped.
-const doctrineBlock = (carrier) => carrier.toString().match(/\/\*\n([\s\S]*?)\n\*\//)[1]
+const doctrineBlock = (name, carrier) => {
+  const captured = carrier.toString().match(/\/\*\n([\s\S]*?)\n\*\//)?.[1]
+  const endMarker = `<!-- doctrine:${name}:end -->`
+  if (captured === undefined || !captured.endsWith(endMarker)) {
+    throw new Error(`doctrine block ${name} was not captured through its ${endMarker} marker`)
+  }
+  return captured
+}
 
-const ARROWS_BLOCK = doctrineBlock(() => {
+const ARROWS_BLOCK = doctrineBlock('arrows', () => {
   /*
 <!-- doctrine:arrows:start -->
 
@@ -84,7 +91,7 @@ Never:
 */
 })
 
-const GROWTH_GUARDS_BLOCK = doctrineBlock(() => {
+const GROWTH_GUARDS_BLOCK = doctrineBlock('growth-guards', () => {
   /*
 <!-- doctrine:growth-guards:start -->
 
@@ -96,7 +103,7 @@ const GROWTH_GUARDS_BLOCK = doctrineBlock(() => {
 */
 })
 
-const SEVERITY_BLOCK = doctrineBlock(() => {
+const SEVERITY_BLOCK = doctrineBlock('severity', () => {
   /*
 <!-- doctrine:severity:start -->
 
@@ -114,13 +121,13 @@ const SEVERITY_BLOCK = doctrineBlock(() => {
 // ── rubric (inlined Sliced Bread rules) ─────────────────────────────────
 const RUBRIC = [
   'SLICED BREAD ARCHITECTURE RUBRIC (vertical slices; each slice exposes a crust — its public seam):',
-  'Dependency direction (arrows may ONLY point this way):',
+  'Dependency direction — permitted arrows, plus arrows that must never appear:',
   ARROWS_BLOCK,
   'Checks:',
-  '  1. import-direction — do all arrows point in a permitted direction? Only the composition root (app/bootstrap, main) may import concrete adapters, and nothing imports entrypoints/. Any inversion is a blocker.',
+  '  1. import-direction — do all arrows point in a permitted direction? Only the composition root (app/bootstrap, main) may import concrete adapters, and nothing imports entrypoints/. Any inversion is a blocker. These arrows describe permitted direction, not required directories — a repo with no entrypoints/ layer is not in violation. A slice importing a sibling slice public seam is permitted.',
   '  2. crust-integrity — external consumers import ONLY the slice public seam in the language native form (exported identifiers in Go, the package __init__ surface in Python, an index module in TypeScript, a public class surface elsewhere), never internals (e.g. from domains.pricing.discount_calculator instead of from domains.pricing).',
   '  3. model-purity — domain files import only stdlib, common/, and sibling slice PUBLIC APIs. A domain file importing an HTTP client / ORM / queue is a violation; the fix is a port (Protocol) implemented by an adapter.',
-  '  4. growth-justification — every directory/abstraction has 2+ concrete uses. Abstract base with one impl, EventBus with one event, registry with one plugin = premature abstraction.',
+  '  4. growth-justification — every directory/abstraction has 2+ concrete uses. Abstract base with one impl, EventBus interface when no event exists yet, registry with one plugin = premature abstraction.',
   '  5. event-usage — events exist for reverse dependencies (B reacts to A without A knowing B). Cycles between slices must resolve via events typed in common/, not mutual imports. Events must not be general-purpose messaging.',
   'Growth guards — false positives to suppress when grading growth:',
   GROWTH_GUARDS_BLOCK,

@@ -58,21 +58,31 @@ function readOrNull(path) {
 }
 
 function main() {
-  const canonicalText = readOrNull(join(ROOT, CANONICAL))
-  if (canonicalText === null) {
-    console.error(`${CANONICAL}: canonical source is missing or unreadable`)
+  let canonicalText
+  try {
+    canonicalText = readFileSync(join(ROOT, CANONICAL), 'utf8')
+  } catch (error) {
+    console.error(`${CANONICAL}: canonical source is unreadable: ${error.message}`)
     return 1
   }
 
   const canonicalBlocks = new Map()
   let malformed = false
   for (const name of BLOCK_NAMES) {
+    let block
     try {
-      canonicalBlocks.set(name, extractBlock(canonicalText, name))
+      block = extractBlock(canonicalText, name)
     } catch (error) {
       console.error(`${CANONICAL}: malformed marker pair for block ${name}: ${error.message}`)
       malformed = true
+      continue
     }
+    if (block === '') {
+      console.error(`${CANONICAL}: block ${name} is empty`)
+      malformed = true
+      continue
+    }
+    canonicalBlocks.set(name, block)
   }
   if (malformed) return 1
 
@@ -84,11 +94,13 @@ function main() {
       continue
     }
     for (const name of consumer.blocks) {
-      let copy = null
+      let copy
       try {
         copy = extractBlock(text, name)
-      } catch {
-        copy = null
+      } catch (error) {
+        console.error(`${consumer.file}: block ${name}: ${error.message}`)
+        diverged = true
+        continue
       }
       if (copy !== canonicalBlocks.get(name)) {
         console.error(`${consumer.file}: block ${name} diverged from ${CANONICAL}`)

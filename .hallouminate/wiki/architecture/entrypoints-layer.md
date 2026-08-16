@@ -3,7 +3,7 @@
 `entrypoints/` is a top-level layer holding **driving** adapters only — one
 per medium (CLI, HTTP server, worker, scheduler) — each translating an
 outside trigger into a call on `app/`. Nothing imports `entrypoints/`, and
-only the composition-root module (`app/bootstrap`, `main`) may import
+only the composition-root module (e.g. `app/bootstrap`, `main`) may import
 concrete adapters and inject them. `adapters/` means **driven** adapters
 exclusively (database, HTTP client, queue, filesystem) — they implement
 ports the domain defines, and never import `app/` or `entrypoints/`.
@@ -42,6 +42,11 @@ Not every cross-slice operation belongs in `app/use_cases/`. Per
 `entrypoints/` is the reference name for a role, not a required directory.
 Go's `cmd/` and .NET's `Web`/`API` projects satisfy it — the doctrine is
 language-agnostic on this point the same way the crust rule is (see
-[[architecture/crust-definition]]). The arrows describe permitted direction,
-not required directories: a repo with no `entrypoints/` folder is not in
-violation merely for lacking the name.
+[[architecture/crust-definition]]). The same reading applies to the
+composition root: `app/bootstrap` and `main` are example homes, not mandated
+modules, and in a qualifying framework the framework's own composition
+mechanism — a DI container, a Godot autoload registration, a declarative
+composition config — *is* the composition root (see
+[[architecture/framework-leaning]]). The arrows describe permitted
+direction, not required directories: a repo with no `entrypoints/` folder is
+not in violation merely for lacking the name.

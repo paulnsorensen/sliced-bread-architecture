@@ -16,8 +16,8 @@ docs site that consume it.
 ## Sections
 
 - [[architecture/doctrine-canonical-source]] — why the doctrine has one
-  canonical source and how drift across four copies is CI-checked, not
-  regenerated
+  canonical source and how drift across its four consumer copies is
+  CI-checked, not regenerated
 - [[architecture/entrypoints-layer]] — why `entrypoints/` exists as a fourth
   layer and why only the composition root may import concrete adapters
 - [[architecture/crust-definition]] — what a slice's public seam is,

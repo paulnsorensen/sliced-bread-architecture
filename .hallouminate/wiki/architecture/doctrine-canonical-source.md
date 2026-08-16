@@ -11,7 +11,10 @@ edit the canonical file and let the blocks propagate.
 
 The doctrine used to live in four hand-maintained copies with no symlink, no
 build step, and no drift check: the reference itself, its byte-identical site
-twin, the audit script's inlined rubric, and the skills README table. Two had
+twin, the audit script's inlined rubric, and a skills README table (since
+stripped of doctrine text). That historical four is a different set from the
+four consumers the checker tracks today, which count the reference as origin,
+not copy. Two had
 already diverged on output that matters — model-purity carried three
 different verdicts across the review skill and the audit script, and a
 false-positive growth guard existed in only one copy, so the audit was filing

@@ -36,15 +36,18 @@ audit pass to *look*, not as the grading criterion.
 ## Growth guards (false positives to suppress)
 
 The `growth-guards` marker-fenced block (kept in sync across consumers per
-[[architecture/doctrine-canonical-source]]) lists structures that must not be
-graded against the 2+-concrete-uses check even though they look like
-single-use structure:
+[[architecture/doctrine-canonical-source]]) lists false positives to
+suppress when grading growth:
 
 - A new single-file concept that stayed a single file is correct, not a
   finding.
 - A dispatcher introduced to break a cross-slice cycle is not premature
   abstraction, even with one event and one subscriber — see
   [[architecture/event-model]].
+- The numeric thresholds are advisory signals, not gradeable violations;
+  grade implementation share, public-surface size, and lifetime mixing
+  (scoped to the numeric signals — the 2+-concrete-uses check stays
+  gradeable).
 - In a language whose only privacy mechanism is file placement, a
   subdirectory marking its contents internal is the visibility mechanism,
   not growth structure — see [[architecture/crust-definition]].

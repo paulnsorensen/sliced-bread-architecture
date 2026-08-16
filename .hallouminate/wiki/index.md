@@ -9,9 +9,9 @@ docs site that consume it.
 - One wiki page per durable, ADR-backed decision — not per session or per
   file touched.
 - [[architecture/doctrine-canonical-source]] governs how the doctrine text
-  itself may be edited: `reference/sliced-bread.md` is the only place the
-  arrows/severity/growth-guards blocks may change; every other consumer
-  carries a verbatim copy, CI-checked for drift.
+  itself may be edited: the arrows/severity/growth-guards blocks originate
+  in `reference/sliced-bread.md`; every consumer copy moves verbatim in the
+  same commit, CI-checked for drift.
 
 ## Sections
 

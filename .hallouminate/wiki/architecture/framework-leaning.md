@@ -30,17 +30,18 @@ the doctrine already argues against elsewhere.
 
 ## The qualifying criterion
 
-Leaning in is conditional on the framework itself being loosely coupled and
-composition-first. Godot's node/signal/resource model qualifies — its
-mechanisms compose without forcing slices to know about each other. A
-framework that demands inheritance into every class, or routes everything
+Leaning in is conditional on the framework itself being loosely coupled,
+composition-first, and made of small stable interfaces. Godot's
+node/signal/resource model qualifies — its mechanisms compose without
+forcing slices to know about each other. A framework that demands
+inheritance into every class, or routes everything
 through global mutable state, does **not** qualify: keep that one behind
 adapters at the seam, and lean in only where the framework actually is
 loosely coupled.
 
 Engine-hosted applications multiply egress points — scenes, signals, network
 replication, render buffers — and that multiplication is not itself violation
-pressure. The boundary rule is unchanged (consumers use the slice's public
+pressure. The boundary rule is unchanged (callers use the slice's public
 seam); what varies is the native form the seam's traffic takes.
 
 ## Provenance
@@ -49,6 +50,6 @@ The event-publisher exemption to wrap-what-you-do-not-control originates in
 ADR-002 (`docs/adr/sliced-bread-doctrine-revision-002.md`); ADR-005
 (`docs/adr/sliced-bread-doctrine-revision-005.md`) generalizes it into the
 full "Leaning Into the Framework" principle, prompted by the first
-engine-hosted (Godot) production consumer needing a doctrinal reading for
+engine-hosted (Godot) production adopter needing a doctrinal reading for
 entry points, composition, and egress that revision 002 hadn't covered. Read
 both in full for the alternatives considered.

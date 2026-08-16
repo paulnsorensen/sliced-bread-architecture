@@ -3,9 +3,10 @@
 `reference/sliced-bread.md` is the single canonical source for the doctrine's
 rules **and** their severities. Three sections of it are wrapped in
 HTML-comment markers — `<!-- doctrine:arrows:start/end -->`,
-`doctrine:severity`, and `doctrine:growth-guards` — and every other place the
-doctrine is restated must carry those blocks verbatim. Never hand-edit a copy;
-edit the canonical file and let the blocks propagate.
+`doctrine:severity`, and `doctrine:growth-guards` — and every consumer
+carries its declared blocks verbatim. Never edit a copy independently: edit
+the canonical file, then copy each changed block verbatim into every listed
+consumer in the same commit.
 
 ## Why this exists
 
@@ -14,18 +15,18 @@ build step, and no drift check: the reference itself, its byte-identical site
 twin, the audit script's inlined rubric, and a skills README table (since
 stripped of doctrine text). That historical four is a different set from the
 four consumers the checker tracks today, which count the reference as origin,
-not copy. Two had
-already diverged on output that matters — model-purity carried three
-different verdicts across the review skill and the audit script, and a
-false-positive growth guard existed in only one copy, so the audit was filing
-issues the review skill explicitly said to suppress (see ADR-004 in
+not copy. Two had already diverged on output that matters — model-purity
+carried three different verdicts across the review skill and the audit
+script, and a false-positive growth guard existed in only one copy, so the
+audit was filing issues the review skill explicitly said to suppress (see
+ADR-004 in
 `docs/adr/sliced-bread-doctrine-revision-004.md`, read in full).
 
 A machine-readable `rules.yml` that generated every copy was considered and
 rejected as build machinery the doctrine's own YAGNI principle argues
-against, for only three consumers. The chosen shape is deliberately the
-cheapest one that still prevents drift: one canonical file, verbatim copies,
-and a checker.
+against — at ADR-004 time, for what were then three consumers. The chosen
+shape is deliberately the cheapest one that still prevents drift: one
+canonical file, verbatim copies, and a checker.
 
 ## The checker
 

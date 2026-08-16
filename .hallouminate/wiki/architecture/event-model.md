@@ -1,7 +1,8 @@
 # Event model
 
 Cycle-breaking events must live in `domains/common/`. Placing the event in
-the *emitting* slice's public API does not break the cycle — if `pricing`
+the *emitting* slice's public seam (see
+[[architecture/crust-definition]]) does not break the cycle — if `pricing`
 must import `orders` for the event type while `orders` still imports
 `pricing` for totals, the module-level cycle survives (an import-time hazard
 in both Python and TypeScript barrels). Both slices import the event type
@@ -10,7 +11,7 @@ from the shared kernel instead, so neither imports the other.
 ## Why the emitting-slice option was removed
 
 The doctrine originally offered two placements for a cycle-breaking event —
-`common/events` *or* the emitting slice's public API — as if they were
+`common/events` *or* the emitting slice's public seam — as if they were
 equivalent. They are not: only the `common/` placement actually breaks the
 cycle. Separately, following the doctrine's own event-usage rule immediately
 triggered a premature-abstraction finding, because both the audit script and

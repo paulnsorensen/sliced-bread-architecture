@@ -12,7 +12,7 @@ digging into internals and no hundred-symbol entry point?
 
 The doctrine originally framed crust integrity around an index/barrel file
 ("the barrel file is the contract"). That framing is language-parochial: Go
-has no barrel concept at all (the package *is* the crust), and the current
+has no barrel concept at all (the package _is_ the crust), and the current
 TypeScript ecosystem discourages barrel files for build-performance and
 tree-shaking reasons — Next.js ships `optimizePackageImports` specifically to
 mitigate them. See ADR-003,
@@ -38,7 +38,7 @@ adopter's own bridge implementation was such an allowlist, and that its
 own follow-up spec exists specifically to delete it.
 
 A single-file privacy subdirectory in a positional-visibility language is the
-*visibility mechanism itself*, not growth structure — it is exempt from the
+_visibility mechanism itself_, not growth structure — it is exempt from the
 2+-concrete-uses growth check even with only one file inside. This exemption
 lives in the shared `growth-guards` block; see
 [[architecture/growth-signals-advisory]] and

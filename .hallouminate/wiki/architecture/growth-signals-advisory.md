@@ -31,7 +31,7 @@ what tooling grades.
 When citing a growth finding, cite the ratio (implementation share) and
 surface count as evidence — not "the file is over 200 lines" as if that were
 itself a violation. The numbers remain useful as a prompt for a human or
-audit pass to *look*, not as the grading criterion.
+audit pass to _look_, not as the grading criterion.
 
 ## Growth guards (false positives to suppress)
 

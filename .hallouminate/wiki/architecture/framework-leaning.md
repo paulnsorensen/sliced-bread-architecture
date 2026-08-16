@@ -3,7 +3,7 @@
 When the chosen framework natively supplies a doctrine role — entry points,
 composition root, event publisher, or egress currency — use the framework's
 own mechanism directly rather than wrapping it. The wrap-what-you-do-not-
-control rule applies to *external* dependencies; it does not extend to the
+control rule applies to _external_ dependencies; it does not extend to the
 framework the application is built on. Wrapping a framework facility with no
 independent reason to abstract it is itself speculative architecture, which
 the doctrine already argues against elsewhere.
@@ -11,12 +11,12 @@ the doctrine already argues against elsewhere.
 ## Roles a framework can satisfy directly
 
 - **Entry points** — the framework's routing, CLI host, engine callbacks, or
-  RPC surface *is* the driving adapter (see
+  RPC surface _is_ the driving adapter (see
   [[architecture/entrypoints-layer]]). A game engine's per-frame callbacks
   and RPC endpoints are entrypoints the same way an HTTP framework's
   controllers are.
 - **Composition root** — the framework's DI container, singleton registry, or
-  declarative composition config *is* the composition root. A Godot autoload
+  declarative composition config _is_ the composition root. A Godot autoload
   registration or a serialized scene instantiating a slice's nodes is
   composition doing its job, not a boundary bypass.
 - **Event publisher** — the framework-native publisher (Spring events, Godot

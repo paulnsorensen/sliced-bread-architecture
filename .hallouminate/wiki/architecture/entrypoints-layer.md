@@ -46,7 +46,7 @@ language-agnostic on this point the same way the crust rule is (see
 composition root: `app/bootstrap` and `main` are example homes, not mandated
 modules, and in a qualifying framework the framework's own composition
 mechanism — a DI container, a Godot autoload registration, a declarative
-composition config — *is* the composition root (see
+composition config — _is_ the composition root (see
 [[architecture/framework-leaning]]). The arrows describe permitted
 direction, not required directories: a repo with no `entrypoints/` folder is
 not in violation merely for lacking the name.

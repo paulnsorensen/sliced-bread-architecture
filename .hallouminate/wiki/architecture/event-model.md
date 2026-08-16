@@ -1,7 +1,7 @@
 # Event model
 
 Cycle-breaking events must live in `domains/common/`. Placing the event in
-the *emitting* slice's public seam (see
+the _emitting_ slice's public seam (see
 [[architecture/crust-definition]]) does not break the cycle — if `pricing`
 must import `orders` for the event type while `orders` still imports
 `pricing` for totals, the module-level cycle survives (an import-time hazard
@@ -11,7 +11,7 @@ from the shared kernel instead, so neither imports the other.
 ## Why the emitting-slice option was removed
 
 The doctrine originally offered two placements for a cycle-breaking event —
-`common/events` *or* the emitting slice's public seam — as if they were
+`common/events` _or_ the emitting slice's public seam — as if they were
 equivalent. They are not: only the `common/` placement actually breaks the
 cycle. Separately, following the doctrine's own event-usage rule immediately
 triggered a premature-abstraction finding, because both the audit script and
@@ -31,7 +31,7 @@ first applied rule 5.
 
 1. **Framework-native publisher.** If the framework ships one (Spring's
    `ApplicationEventPublisher`, for example), call it directly. The
-   wrap-what-you-do-not-control rule is scoped to *external* dependencies; it
+   wrap-what-you-do-not-control rule is scoped to _external_ dependencies; it
    does not extend to the framework's own event publisher (Spring
    Modulith's own reference code calls it directly — the only pro-wrapping
    source found in ADR-002's research was blog-tier).

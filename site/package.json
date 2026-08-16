@@ -11,9 +11,13 @@
   },
   "dependencies": {
     "@astrojs/starlight": "^0.41.7",
-    "astro": "^7.2.1"
+    "@cheeselord/design": "^0.5.0",
+    "astro": "^7.2.2"
   },
   "devDependencies": {
     "prettier": "3.9.6"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true
   }
 }

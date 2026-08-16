@@ -98,6 +98,7 @@ const GROWTH_GUARDS_BLOCK = doctrineBlock('growth-guards', () => {
 - New single-file concepts that stayed single files are correct; do not flag them.
 - A dispatcher introduced to break a cross-slice cycle is not premature abstraction, even with one event and one subscriber.
 - Numeric thresholds are advisory signals, not gradeable violations; grade implementation share, public-surface size, and lifetime mixing.
+- In a language whose only privacy mechanism is file placement, a subdirectory that exists to mark its contents internal is the visibility mechanism, not growth structure; do not grade it against the 2+-concrete-uses check, even with a single file inside.
 
 <!-- doctrine:growth-guards:end -->
 */

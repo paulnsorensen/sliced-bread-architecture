@@ -69,6 +69,7 @@ gradeable:
 - New single-file concepts that stayed single files are correct; do not flag them.
 - A dispatcher introduced to break a cross-slice cycle is not premature abstraction, even with one event and one subscriber.
 - Numeric thresholds are advisory signals, not gradeable violations; grade implementation share, public-surface size, and lifetime mixing.
+- In a language whose only privacy mechanism is file placement, a subdirectory that exists to mark its contents internal is the visibility mechanism, not growth structure; do not grade it against the 2+-concrete-uses check, even with a single file inside.
 
 <!-- doctrine:growth-guards:end -->
 
@@ -167,6 +168,15 @@ The test is a surface test: can a consumer see a small, obvious set of externall
 usable operations at the top level, with no digging into internals and no
 hundred-symbol entry point?
 
+Some languages have no native visibility form at all — engine scripting languages
+like GDScript expose every identifier in every file. There the crust is positional:
+the files sitting directly at the slice root are the public seam, nested directories
+are internals, and an external checker enforces what the language cannot. Keep the
+checker's rule mechanical — root is public, nested is private — never a per-slice
+allowlist of public filenames: a slice then grows a second public root module by
+adding the file, not by editing CI. The surface test above still governs how many
+root files a slice should carry.
+
 Slices stay local and roughly DDD until application infrastructure requires the
 hexagonal seams. Don't fit a slice with ports and adapters before it talks to
 anything outside the process.
@@ -222,6 +232,43 @@ Event machinery is staged — take the earliest stage that works:
    port and a minimal in-process dispatcher owned by `app/` implements it.
 3. **Durable delivery.** Outbox records, retries, and delivery guarantees enter only
    when delivery leaves the process.
+
+## Leaning Into the Framework
+
+The staged event model generalizes: when the chosen framework natively supplies a
+doctrine role, use the framework mechanism directly. The wrap-what-you-do-not-control
+rule applies to external dependencies, not to the framework the application is built
+on — wrapping a framework facility you had no reason to abstract is speculative
+architecture.
+
+Framework mechanisms that satisfy doctrine roles directly:
+
+- **Entry points** — the framework's routing, CLI host, engine callbacks, or RPC
+  surface is the driving adapter. A game engine's per-frame callbacks and RPC
+  endpoints are entrypoints the same way an HTTP framework's controllers are.
+- **Composition root** — the framework's DI container, singleton registry, or
+  declarative composition config is the composition root. A Godot autoload
+  registration or a serialized scene instantiating a slice's nodes is composition
+  doing its job, not a boundary bypass.
+- **Event publisher** — the framework-native publisher (Spring events, Godot
+  signals) is stage one of the event ladder; call it directly.
+- **Egress currencies** — there is no universal crust return type. A slice's seam
+  legitimately emits what the framework natively speaks: an instantiated scene the
+  caller parents, a resource handle, a signal, a wire buffer, a renderer-facing
+  packed buffer. Standardize the contract metadata — ownership, lifecycle, authority
+  to call — not the return shape.
+
+The criterion for leaning in is that the framework is itself sliced-bread-friendly:
+loosely coupled, composition-first, small stable interfaces. Godot's
+node/signal/resource model qualifies — its mechanisms compose without forcing slices
+to know each other. A framework that demands inheritance into every class or routes
+everything through global mutable state does not; keep that one behind adapters at
+the seam and lean in only where it is loosely coupled.
+
+Engine-hosted applications multiply egress points — scenes, signals, network
+replication, render buffers — and that is not violation pressure. The boundary rule
+is unchanged: consumers use the slice's public seam. What varies is the native form
+the seam's traffic takes.
 
 ## Dependency Direction Quick-Check
 

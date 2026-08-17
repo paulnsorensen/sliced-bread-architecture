@@ -3,11 +3,12 @@
 Distributable Claude Code skills and workflows for working with Sliced Bread
 codebases.
 
-| Skill                 | Kind            | Purpose                                            |
-| --------------------- | --------------- | -------------------------------------------------- |
-| `sliced-bread-review` | Skill           | Review a bounded change set against the five rules |
-| `sliced-bread-audit`  | Workflow script | Multi-agent full-repo audit that files GH issues   |
-| `sliced-bread-depth`  | Skill           | Score each slice as a deep module; flag fat crusts |
+| Skill                    | Kind            | Purpose                                                                    |
+| ------------------------ | --------------- | -------------------------------------------------------------------------- |
+| `sliced-bread-review`    | Skill           | Review a bounded change set against the five rules                         |
+| `sliced-bread-audit`     | Workflow script | Multi-agent full-repo audit that files GH issues                           |
+| `sliced-bread-depth`     | Skill           | Score each slice as a deep module; flag fat crusts                         |
+| `slice-and-spine-review` | Skill           | Human-led seam-coherence review of slices and the spine; per-seam verdicts |
 
 ## Installing a skill
 

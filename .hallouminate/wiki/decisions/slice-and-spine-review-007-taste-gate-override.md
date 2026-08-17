@@ -1,0 +1,6 @@
+# ADR slice-and-spine-review-007: Fork-taste gate overridden on a validator defect [status: accepted]
+
+- **Context:** The mold fork-taste validator requires every consequential fork reflected in four spec sections including test-contract, while its applicability parser forbids a `Test Contracts` heading on `not-applicable` specs. On this docs-only spec the fresh-context reviewer passed substantively but refused to certify test-contract reflections as truthful; the mechanical gate failed with 12 identical missing-reflection gaps — the third failure, halting the ceremony.
+- **Decision:** User-authorized override: proceed with `gates_overridden: [fork_taste_test_passed]` recorded in spec frontmatter, and file the validator defect upstream (follow-up F004, github.com/paulnsorensen/easy-cheese).
+- **Alternatives:** (a) Over-budget correction round rewriting the section as per-fork rationale — rejected: papers prose over a miscalibrated check and hides the defect. (b) Halt until mold is fixed — rejected: blocks delivered value on tooling repair.
+- **Consequences:** The override is auditable in frontmatter; F004 tracks the root-cause fix so future not-applicable specs pass without override.

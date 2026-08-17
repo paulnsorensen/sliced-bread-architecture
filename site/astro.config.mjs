@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config'
 import starlight from '@astrojs/starlight'
+import { cheeselordTheme } from '@cheeselord/design/starlight'
 
 export default defineConfig({
   site: 'https://cheeselord.dev',
@@ -9,6 +10,10 @@ export default defineConfig({
       title: 'Sliced Bread',
       description:
         'Vertical-slice architecture with organic growth: structure emerges from pressure, and every dependency arrow points in a permitted direction.',
+      plugins: [cheeselordTheme({ flavor: 'sliced-bread' })],
+      components: {
+        SiteTitle: './src/components/Brand.astro',
+      },
       social: [
         {
           icon: 'github',

@@ -10,7 +10,7 @@ hero:
       icon: right-arrow
     - text: Get the agent skills
       link: /sliced-bread-architecture/skills/
-      icon: seti:markdown
+      icon: document
       variant: minimal
 ---
 
@@ -25,7 +25,7 @@ import { Card, CardGrid } from '@astrojs/starlight/components'
     public API directly. Only the composition root imports concrete adapters, and nothing imports
     `entrypoints/`.
   </Card>
-  <Card title="Crust integrity" icon="seti:lock">
+  <Card title="Crust integrity" icon="padlock">
     External consumers use a slice's public seam in the language's native form — exported
     identifiers, a package `__init__`, an index module. Internals can be renamed, split, or
     reorganized freely.
@@ -34,7 +34,7 @@ import { Card, CardGrid } from '@astrojs/starlight/components'
     Domain code imports stdlib, `common/`, and sibling public APIs. Infrastructure hides behind
     ports the domain defines and adapters implement.
   </Card>
-  <Card title="Growth justification" icon="seti:plan">
+  <Card title="Growth justification" icon="code-branch">
     Every directory and abstraction has 2+ concrete uses. One file → extract siblings → facade +
     folder. Numeric triggers are advisory signals that prompt a look, not gradeable thresholds.
   </Card>

@@ -35,11 +35,11 @@ docs site that consume it.
   thresholds are advisory signals, not gradeable violations
 - [[architecture/framework-leaning]] — when a framework's own mechanism
   satisfies a doctrine role directly, instead of being wrapped
-- [[architecture/skill-distribution]] — how the `skills/` tree reaches coding
-  harnesses; distribution is owned by the dotfiles repo, not this one
-- [[decisions/index]] — accepted ADRs backing the slice-and-spine-review
-  skill: spine referent, session shape, fan-out unit, walk order, link
-  levels, verdict output, taste-gate override, and research-corpus placement
+- [[architecture/skill-distribution]] — why the `skills/` tree is
+  distributed by the dotfiles repo rather than this one, and what that
+  means for unmerged skills
+- [[decisions/index]] — accepted ADRs backing this repository's design
+  decisions, one page per decision
 - [[domain-model]] — cumulative ubiquitous language for the project (Slice,
   Crust, Spine, Seam, Disposition, Link level, Change coupling, Hot path)
 - [[research/slice-spine-review-prior-art/slice-spine-review-prior-art]] —

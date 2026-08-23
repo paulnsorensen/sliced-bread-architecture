@@ -7,7 +7,9 @@ docs site that consume it.
 ## Conventions
 
 - One wiki page per durable, ADR-backed decision — not per session or per
-  file touched.
+  file touched. Accepted ADRs live under `decisions/`, one page per decision
+  with `[status: ...]` in the title; the top-level index links the namespace,
+  not each ADR.
 - [[architecture/doctrine-canonical-source]] governs how the doctrine text
   itself may be edited: the arrows/severity/growth-guards blocks originate
   in `reference/sliced-bread.md`; every consumer copy moves verbatim in the
@@ -33,6 +35,13 @@ docs site that consume it.
   thresholds are advisory signals, not gradeable violations
 - [[architecture/framework-leaning]] — when a framework's own mechanism
   satisfies a doctrine role directly, instead of being wrapped
+- [[architecture/skill-distribution]] — how the `skills/` tree reaches coding
+  harnesses; distribution is owned by the dotfiles repo, not this one
+- [[decisions/index]] — accepted ADRs backing the slice-and-spine-review
+  skill: spine referent, session shape, fan-out unit, walk order, link
+  levels, verdict output, taste-gate override, and research-corpus placement
+- [[domain-model]] — cumulative ubiquitous language for the project (Slice,
+  Crust, Spine, Seam, Disposition, Link level, Change coupling, Hot path)
 - [[research/slice-spine-review-prior-art/slice-spine-review-prior-art]] —
   prior-art survey for the slice-and-spine review aspect: no existing
   tool/OSS/methodology combines human-guided sessions, whole-repo scope,

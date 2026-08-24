@@ -25,6 +25,8 @@ cd site && npm install   # docs site
 ```sh
 npx prettier@3 --check .          # formatting
 npx markdownlint-cli2@0.18        # markdown structure
+node scripts/check-contracts.mjs      # doctrine consistency
+node --test tests/check-contracts.test.mjs # contract checker behavior
 cd site && npm run build          # site must build
 ```
 

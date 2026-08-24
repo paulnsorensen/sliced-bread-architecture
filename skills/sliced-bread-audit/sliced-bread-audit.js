@@ -105,6 +105,20 @@ const GROWTH_GUARDS_BLOCK = doctrineBlock('growth-guards', () => {
 */
 })
 
+const GROWTH_CASES_BLOCK = doctrineBlock('growth-cases', () => {
+  /*
+<!-- doctrine:growth-cases:start -->
+
+| ID | Given | Expected | Rationale |
+| --- | --- | --- | --- |
+| `growth-cycle-event` | An event dispatcher is introduced to break a cross-slice cycle. | `allow` | The dispatcher removes a concrete cycle and is a canonical exception to the pressure-first growth signal. |
+| `growth-positional-one-file` | A one-file positional crust marks internal visibility in a language without another privacy mechanism. | `allow` | The directory is a visibility boundary rather than speculative growth structure, even when it contains one file. |
+| `growth-single-unpressured` | A new abstraction has one concrete consumer and no demonstrated pressure. | `medium` | The normal two-concrete-consumer signal has not been met, so the abstraction should be challenged as premature rather than treated as a blocker. |
+
+<!-- doctrine:growth-cases:end -->
+*/
+})
+
 const SEVERITY_BLOCK = doctrineBlock('severity', () => {
   /*
 <!-- doctrine:severity:start -->
@@ -117,6 +131,21 @@ const SEVERITY_BLOCK = doctrineBlock('severity', () => {
 | low      | Single-consumer crust bypass; naming drift                                                                                                                           |
 
 <!-- doctrine:severity:end -->
+*/
+})
+
+const SEVERITY_CASES_BLOCK = doctrineBlock('severity-cases', () => {
+  /*
+<!-- doctrine:severity-cases:start -->
+
+| ID | Given | Expected | Rationale |
+| --- | --- | --- | --- |
+| `severity-import-exec` | A domain module executes infrastructure work while it is imported. | `blocker` | Import-time side effects make every consumer pay infrastructure cost and can fail before application startup is controlled. |
+| `severity-static-domain-infra` | A domain model has a static dependency on infrastructure. | `medium` | The dependency violates model purity and increases change coupling, but a static edge alone is not an import-time execution failure. |
+| `severity-static-concrete-adapter` | A use case or application service imports a concrete adapter instead of a domain port. | `medium` | The application layer is coupled to infrastructure selection; dependency injection through a port restores the intended boundary. |
+| `severity-other-forbidden-edge` | A dependency edge points in a forbidden direction and does not match a more specific severity case. | `blocker` | Unmatched structural inversions break the slice dependency contract and require immediate correction. |
+
+<!-- doctrine:severity-cases:end -->
 */
 })
 
@@ -133,12 +162,14 @@ const RUBRIC = [
   '  5. event-usage — events exist for reverse dependencies (B reacts to A without A knowing B). Cycles between slices must resolve via events typed in common/, not mutual imports. Events must not be general-purpose messaging.',
   'Growth guards — false positives to suppress when grading growth. "Numeric thresholds" below means the reference advisory growth signals (~200 lines, 3+ distinct concepts, 3+ clustered files), which are not gradeable:',
   GROWTH_GUARDS_BLOCK,
+  GROWTH_CASES_BLOCK,
   'Also audit general quality: correctness (broken behaviour, silent failures, edge cases), security (tainted input, secrets, unsafe parsing), complexity (long functions, parameter sprawl, redundant state), deslop (dead code, duplicated logic, AI residue), tests (weak assertions, mocked SUT).',
 ].join('\n')
 
 const SEVERITY_GUIDE = [
   'Architecture severities — grade against this table exactly:',
   SEVERITY_BLOCK,
+  SEVERITY_CASES_BLOCK,
   'Non-architecture severities: blocker = security hole or broken behaviour on a main path; high = a real bug; medium = meaningful complexity or dead-code debt, or test assertions too weak to catch a regression; low = minor deslop.',
   'Do NOT manufacture findings — an empty list is a valid outcome. Every finding needs file + line + quoted evidence.',
 ].join('\n')

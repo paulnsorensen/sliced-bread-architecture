@@ -57,8 +57,8 @@ Never:
 
 <!-- doctrine:arrows:end -->
 
-Any inversion of these arrows is a **blocker**; a use case importing a concrete
-adapter is **medium**.
+Apply the checked doctrine:severity-cases matrix in first-match order. Do not
+restate severity outcomes in runtime guidance outside that matrix.
 
 ### 2. Crust integrity
 
@@ -73,15 +73,15 @@ module in TypeScript, a public class surface elsewhere — never its internals.
 
 Domain files import only stdlib, `common/`, and sibling slice public APIs.
 A domain file importing an HTTP client, ORM, or queue is a violation; the fix
-is a port (protocol) defined in the domain and implemented by an adapter.
-**Medium**, escalating to **blocker** only when the infrastructure call
-executes at import time.
+is a port (protocol) defined in the domain and implemented by an adapter. Apply
+the checked severity matrix rather than inferring an outcome from this guidance.
 
 ### 4. Growth justification
 
 Every new directory or abstraction needs 2+ concrete uses. An abstract base
 with one implementation, an event bus interface when no event exists yet, or a
-registry with one plugin is premature abstraction — **medium**. "Numeric
+registry with one plugin is premature abstraction; apply the checked growth
+matrix rather than inferring an outcome from this guidance. "Numeric
 thresholds" in the guards below means the advisory growth signals (~200 lines,
 3+ concepts, 3+ clustered files), not this check. Suppress these false
 positives:
@@ -94,6 +94,37 @@ positives:
 - In a language whose only privacy mechanism is file placement, a subdirectory that exists to mark its contents internal is the visibility mechanism, not growth structure; do not grade it against the 2+-concrete-uses check, even with a single file inside.
 
 <!-- doctrine:growth-guards:end -->
+
+<!-- prettier-ignore-start -->
+<!-- doctrine:growth-cases:start -->
+
+| ID | Given | Expected | Rationale |
+| --- | --- | --- | --- |
+| `growth-cycle-event` | An event dispatcher is introduced to break a cross-slice cycle. | `allow` | The dispatcher removes a concrete cycle and is a canonical exception to the pressure-first growth signal. |
+| `growth-positional-one-file` | A one-file positional crust marks internal visibility in a language without another privacy mechanism. | `allow` | The directory is a visibility boundary rather than speculative growth structure, even when it contains one file. |
+| `growth-single-unpressured` | A new abstraction has one concrete consumer and no demonstrated pressure. | `medium` | The normal two-concrete-consumer signal has not been met, so the abstraction should be challenged as premature rather than treated as a blocker. |
+
+<!-- doctrine:growth-cases:end -->
+<!-- prettier-ignore-end -->
+
+Apply these growth outcomes in order; the event-dispatcher and one-file
+positional-crust cases are explicit exceptions to the normal pressure signal.
+
+<!-- prettier-ignore-start -->
+<!-- doctrine:severity-cases:start -->
+
+| ID | Given | Expected | Rationale |
+| --- | --- | --- | --- |
+| `severity-import-exec` | A domain module executes infrastructure work while it is imported. | `blocker` | Import-time side effects make every consumer pay infrastructure cost and can fail before application startup is controlled. |
+| `severity-static-domain-infra` | A domain model has a static dependency on infrastructure. | `medium` | The dependency violates model purity and increases change coupling, but a static edge alone is not an import-time execution failure. |
+| `severity-static-concrete-adapter` | A use case or application service imports a concrete adapter instead of a domain port. | `medium` | The application layer is coupled to infrastructure selection; dependency injection through a port restores the intended boundary. |
+| `severity-other-forbidden-edge` | A dependency edge points in a forbidden direction and does not match a more specific severity case. | `blocker` | Unmatched structural inversions break the slice dependency contract and require immediate correction. |
+
+<!-- doctrine:severity-cases:end -->
+<!-- prettier-ignore-end -->
+
+Apply the checked doctrine:severity-cases matrix in first-match order; do not
+infer outcomes from prose outside the matrix.
 
 ### 5. Event usage
 

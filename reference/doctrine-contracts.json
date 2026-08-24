@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "match_policy": "first-match",
+  "severity_cases": [
+    {
+      "id": "severity-import-exec",
+      "given": "A domain module executes infrastructure work while it is imported.",
+      "expected": "blocker",
+      "rationale": "Import-time side effects make every consumer pay infrastructure cost and can fail before application startup is controlled."
+    },
+    {
+      "id": "severity-static-domain-infra",
+      "given": "A domain model has a static dependency on infrastructure.",
+      "expected": "medium",
+      "rationale": "The dependency violates model purity and increases change coupling, but a static edge alone is not an import-time execution failure."
+    },
+    {
+      "id": "severity-static-concrete-adapter",
+      "given": "A use case or application service imports a concrete adapter instead of a domain port.",
+      "expected": "medium",
+      "rationale": "The application layer is coupled to infrastructure selection; dependency injection through a port restores the intended boundary."
+    },
+    {
+      "id": "severity-other-forbidden-edge",
+      "given": "A dependency edge points in a forbidden direction and does not match a more specific severity case.",
+      "expected": "blocker",
+      "rationale": "Unmatched structural inversions break the slice dependency contract and require immediate correction."
+    }
+  ],
+  "growth_cases": [
+    {
+      "id": "growth-cycle-event",
+      "given": "An event dispatcher is introduced to break a cross-slice cycle.",
+      "expected": "allow",
+      "rationale": "The dispatcher removes a concrete cycle and is a canonical exception to the pressure-first growth signal."
+    },
+    {
+      "id": "growth-positional-one-file",
+      "given": "A one-file positional crust marks internal visibility in a language without another privacy mechanism.",
+      "expected": "allow",
+      "rationale": "The directory is a visibility boundary rather than speculative growth structure, even when it contains one file."
+    },
+    {
+      "id": "growth-single-unpressured",
+      "given": "A new abstraction has one concrete consumer and no demonstrated pressure.",
+      "expected": "medium",
+      "rationale": "The normal two-concrete-consumer signal has not been met, so the abstraction should be challenged as premature rather than treated as a blocker."
+    }
+  ]
+}

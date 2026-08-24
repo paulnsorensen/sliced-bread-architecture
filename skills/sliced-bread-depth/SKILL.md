@@ -94,6 +94,18 @@ Growth guards — false positives to suppress when grading depth:
 
 <!-- doctrine:growth-guards:end -->
 
+<!-- prettier-ignore-start -->
+<!-- doctrine:growth-cases:start -->
+
+| ID | Given | Expected | Rationale |
+| --- | --- | --- | --- |
+| `growth-cycle-event` | An event dispatcher is introduced to break a cross-slice cycle. | `allow` | The dispatcher removes a concrete cycle and is a canonical exception to the pressure-first growth signal. |
+| `growth-positional-one-file` | A one-file positional crust marks internal visibility in a language without another privacy mechanism. | `allow` | The directory is a visibility boundary rather than speculative growth structure, even when it contains one file. |
+| `growth-single-unpressured` | A new abstraction has one concrete consumer and no demonstrated pressure. | `medium` | The normal two-concrete-consumer signal has not been met, so the abstraction should be challenged as premature rather than treated as a blocker. |
+
+<!-- doctrine:growth-cases:end -->
+<!-- prettier-ignore-end -->
+
 ## Verdicts
 
 | Verdict | Meaning                                                           |

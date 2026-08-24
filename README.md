@@ -29,8 +29,9 @@ adapters/      →  domains/*
    language's native form, never its internals.
 3. **Model purity** — domain code imports stdlib, `common/`, and sibling
    public APIs; infrastructure hides behind ports.
-4. **Growth justification** — every directory and abstraction has 2+
-   concrete uses.
+4. **Growth justification** — Add directories and abstractions only after demonstrated
+   pressure; two concrete consumers are the normal threshold. A cycle-breaking event
+   dispatcher and a one-file positional crust are canonical exceptions.
 5. **Event usage** — events resolve reverse dependencies, not general
    messaging.
 
@@ -44,5 +45,10 @@ The website lives in `site/`:
 cd site && npm install && npm run dev
 ```
 
-PRs are gated by Prettier, markdownlint, and a site build — see
+PRs are gated by Prettier, markdownlint, `node scripts/check-contracts.mjs`,
+`node --test tests/check-contracts.test.mjs`, and the protected AC-7 site
+behavior gate `python3 tests/cut_sliced_bread_consistency_contracts.py ac7-site-404`.
+A bare site build does not replace this generated-404 behavior check; see
 `.github/workflows/`.
+Run the complete copy-paste validation sequence in
+[`CONTRIBUTING.md`](CONTRIBUTING.md#validate-locally).

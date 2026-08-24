@@ -1,62 +1,62 @@
 # Doctrine canonical source
 
-`reference/sliced-bread.md` is the single canonical source for the doctrine's
-rules **and** their severities. Three sections of it are wrapped in
-HTML-comment markers — `<!-- doctrine:arrows:start/end -->`,
-`doctrine:severity`, and `doctrine:growth-guards` — and every consumer
-carries its declared blocks verbatim. Never edit a copy independently: edit
-the canonical file, then copy each changed block verbatim into every listed
-consumer in the same commit.
+`reference/sliced-bread.md` remains the human doctrine authority.
+`reference/doctrine-contracts.json` is the canonical executable representation
+of the approved severity and growth scenarios: IDs, conditions, first-match
+order, outcomes, and rationales. Neither representation may silently override
+the other.
 
-## Why this exists
+Authored consumers carry checker-rendered `doctrine:severity-cases` and
+`doctrine:growth-cases` tables. Change a scenario in both authorities in the
+same commit, copy the rendered table byte-for-byte to every declared consumer,
+and run `node scripts/check-contracts.mjs`.
 
-The doctrine used to live in four hand-maintained copies with no symlink, no
-build step, and no drift check: the reference itself, its byte-identical site
-twin, the audit script's inlined rubric, and a skills README table (since
-stripped of doctrine text). That historical four is a different set from the
-four consumers the checker tracks today, which count the reference as origin,
-not copy. Two had already diverged on output that matters — model-purity
-carried three different verdicts across the review skill and the audit
-script, and a false-positive growth guard existed in only one copy, so the
-audit was filing issues the review skill explicitly said to suppress (see
-ADR-004 in
-`docs/adr/sliced-bread-doctrine-revision-004.md`, read in full).
+## Why the authority is split
 
-A machine-readable `rules.yml` that generated every copy was considered and
-rejected as build machinery the doctrine's own YAGNI principle argues
-against — at ADR-004 time, for what were then three consumers. The chosen
-shape is deliberately the cheapest one that still prevents drift: one
-canonical file, verbatim copies, and a checker.
+The doctrine used to live in hand-maintained prose copies with no executable
+case contract. Two consumers had already diverged on model-purity severity, and
+one had invented a growth violation that other consumers suppressed. Markdown
+is still the right place for rationale and architectural meaning; JSON makes
+the finite cases, precedence, and outcomes mechanically comparable without
+turning prose into generated output.
 
-## The checker
+This is intentionally check-only. `scripts/check-contracts.mjs` does not
+rewrite doctrine or consumers. A generator would make JSON the de facto prose
+authority and hide reviewable authored changes.
 
-`scripts/check-doctrine-sync.mjs` (read in full) is dependency-free, runs in
-CI, and is **check-only** — there is no `--fix` or regeneration mode, by
-design (see ADR-004's alternatives). It currently tracks these consumers:
+## Enforced surfaces
 
-- `site/src/content/docs/reference/sliced-bread.md` (all three blocks)
-- `skills/sliced-bread-review/SKILL.md` (all three blocks)
-- `skills/sliced-bread-audit/sliced-bread-audit.js` (all three blocks)
-- `skills/sliced-bread-depth/SKILL.md` (`growth-guards` only)
+The dependency-free checker fails closed when a declared file or marker block
+is missing, malformed, or divergent. It verifies:
+
+- the strict `doctrine-contracts.v1` schema and ordered case IDs;
+- rendered severity tables in the canonical and published references, bounded
+  review, and automated audit;
+- rendered growth tables in both references, bounded review, automated audit,
+  and depth scoring;
+- the retained prose blocks for arrows, severity guidance, and growth guards;
+- exact four-tool parity between the local and published skill catalogs;
+- pressure-first README and site growth summaries, including both canonical
+  exceptions;
+- the combined audit's ten dimensions and architecture/quality labels; and
+- accepted ADR lifecycle metadata plus non-empty Confirmation and References.
+
+CI runs both the checker and its fixture-backed Node suite. The suite executes
+the CLI against isolated repository trees so missing consumers and invalid
+contracts cannot be mistaken for an optional local configuration.
 
 ## Gotchas
 
-- **A missing consumer file is skipped, not failed.** The checker logs
-  `skipped (not present)` for a file that doesn't exist rather than erroring.
-  This means a consumer that gets deleted (or lives only on an unmerged
-  branch) degrades the sync guarantee silently — `main` stays green with one
-  fewer copy actually being checked. ADR-004 names this as an accepted cost,
-  not an oversight.
-- **The marker-fenced blocks must be plain ASCII and Prettier-stable.** They
-  are embedded verbatim inside a Prettier-formatted JS string array in
-  `sliced-bread-audit.js`. A Prettier reformat of that array is enough to trip
-  the drift check even with no semantic change — so an edit to the canonical
-  blocks should be followed by re-running Prettier on the consumer file
-  before committing.
-- If you're editing rule text or severities, the workflow is: edit
-  `reference/sliced-bread.md` between the markers, copy the block verbatim
-  into every listed consumer, then run the checker locally
-  (`node scripts/check-doctrine-sync.mjs`) before opening a PR.
+- **Marker tables are authored outputs, not a second decision source.** Runtime
+  guidance should point to the checked table instead of restating outcomes in
+  nearby prose.
+- **Missing consumers fail.** The previous checker skipped absent files and
+  silently reduced coverage; `scripts/check-contracts.mjs` rejects them.
+- **Keep marker bodies Prettier-stable.** Verbatim comparison is deliberate.
+  Format affected JS/Markdown consumers before running the checker.
+- **Catalog scope is semantic.** Both catalogs must contain exactly bounded
+  review, automated audit, depth scoring, and human-led slice-and-spine review,
+  with descriptions that distinguish their scopes.
 
-See also [[architecture/growth-signals-advisory]] for what's inside the
-`growth-guards` block this mechanism protects.
+See also [[architecture/growth-signals-advisory]] for the rationale behind the
+growth cases.

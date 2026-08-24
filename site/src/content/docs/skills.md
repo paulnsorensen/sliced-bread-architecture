@@ -6,11 +6,16 @@ description: Distributable Claude Code skills and workflows for Sliced Bread cod
 The [`skills/`](https://github.com/paulnsorensen/sliced-bread-architecture/tree/main/skills)
 directory ships agent tooling that enforces the architecture:
 
-| Skill                 | Kind            | Purpose                                            |
-| --------------------- | --------------- | -------------------------------------------------- |
-| `sliced-bread-review` | Skill           | Review a bounded change set against the five rules |
-| `sliced-bread-audit`  | Workflow script | Multi-agent full-repo audit that files GH issues   |
-| `sliced-bread-depth`  | Skill           | Score each slice as a deep module; flag fat crusts |
+<!-- skills:catalog:start -->
+
+| Tool                     | Scope                                                                                                         |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| `sliced-bread-review`    | Bounded diff architecture review against the five Sliced Bread rules; reports findings without filing issues. |
+| `sliced-bread-audit`     | Automated full-repository ten-dimension audit that verifies findings and files deduplicated GitHub issues.    |
+| `sliced-bread-depth`     | Deep-module scoring that measures each slice's crust shape and implementation share.                          |
+| `slice-and-spine-review` | Human-led whole-repository seam review that walks slices, spine, and integration seams with verdicts.         |
+
+<!-- skills:catalog:end -->
 
 ## sliced-bread-review
 

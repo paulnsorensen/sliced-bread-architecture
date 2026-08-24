@@ -50,5 +50,10 @@ The website lives in `site/`:
 cd site && npm install && npm run dev
 ```
 
-PRs are gated by Prettier, markdownlint, and a site build — see
-`.github/workflows/`.
+PRs are gated by Prettier, markdownlint, `node scripts/check-contracts.mjs`,
+`node --test tests/check-contracts.test.mjs`,
+`node --test tests/audit-boundaries.test.mjs`, and the generated-site behavior
+test `node --test tests/site-404.test.mjs`. A bare site build does not replace
+the 404 assertions; see `.github/workflows/`.
+Run the complete copy-paste validation sequence in
+[`CONTRIBUTING.md`](CONTRIBUTING.md#validate-locally).

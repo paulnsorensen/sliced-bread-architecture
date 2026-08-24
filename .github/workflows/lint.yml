@@ -44,6 +44,7 @@ jobs:
           node-version: 22
       - run: node scripts/check-contracts.mjs
       - run: node --test tests/check-contracts.test.mjs
+      - run: node --test tests/audit-boundaries.test.mjs
 
   site-build:
     name: Site build
@@ -59,4 +60,4 @@ jobs:
           cache: npm
           cache-dependency-path: site/package-lock.json
       - run: npm ci
-      - run: npm run build
+      - run: node --test ../tests/site-404.test.mjs

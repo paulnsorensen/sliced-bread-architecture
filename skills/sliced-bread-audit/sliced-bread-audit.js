@@ -95,10 +95,11 @@ const GROWTH_GUARDS_BLOCK = doctrineBlock('growth-guards', () => {
   /*
 <!-- doctrine:growth-guards:start -->
 
+- A single consumer does not by itself prove premature abstraction; grade whether concrete pressure exists. Two consumers are normal evidence, not a hard requirement.
 - New single-file concepts that stayed single files are correct; do not flag them.
-- A dispatcher introduced to break a cross-slice cycle is not premature abstraction, even with one event and one subscriber.
+- A dispatcher introduced to break a cross-slice cycle is demonstrated pressure, even with one event and one subscriber.
 - Numeric thresholds are advisory signals, not gradeable violations; grade implementation share, public-surface size, and lifetime mixing.
-- In a language whose only privacy mechanism is file placement, a subdirectory that exists to mark its contents internal is the visibility mechanism, not growth structure; do not grade it against the 2+-concrete-uses check, even with a single file inside.
+- In a language whose only privacy mechanism is file placement, a subdirectory marking its contents internal is demonstrated pressure for that visibility boundary, even with a single file inside.
 
 <!-- doctrine:growth-guards:end -->
 */
@@ -128,9 +129,9 @@ const RUBRIC = [
   '  1. import-direction — do all arrows point in a permitted direction? Only the composition root (app/bootstrap, main) may import concrete adapters, and nothing imports entrypoints/. Any inversion is a blocker. These arrows describe permitted direction, not required directories — a repo with no entrypoints/ layer is not in violation. A slice importing a sibling slice public seam is permitted.',
   '  2. crust-integrity — external consumers import ONLY the slice public seam in the language native form (exported identifiers in Go, the package __init__ surface in Python, an index module in TypeScript, a public class surface elsewhere), never internals (e.g. from domains.pricing.discount_calculator instead of from domains.pricing).',
   '  3. model-purity — domain files import only stdlib, common/, and sibling slice PUBLIC APIs. A domain file importing an HTTP client / ORM / queue is a violation; the fix is a port (Protocol) implemented by an adapter.',
-  '  4. growth-justification — every directory/abstraction has 2+ concrete uses. Abstract base with one impl, EventBus interface when no event exists yet, registry with one plugin = premature abstraction.',
+  '  4. growth-justification — demonstrated pressure justifies a directory or abstraction. Two concrete uses are the normal evidence threshold, not a hard requirement. A one-consumer abstraction with no demonstrated pressure is medium.',
   '  5. event-usage — events exist for reverse dependencies (B reacts to A without A knowing B). Cycles between slices must resolve via events typed in common/, not mutual imports. Events must not be general-purpose messaging.',
-  'Growth guards — false positives to suppress when grading growth. "Numeric thresholds" below means the reference advisory growth signals (~200 lines, 3+ distinct concepts, 3+ clustered files), which are not defined here and are not gradeable; it does not mean check 4 above, whose 2+-concrete-uses requirement stays gradeable at medium:',
+  'Growth guards — false positives to suppress when grading growth. "Numeric thresholds" below means the reference advisory growth signals (~200 lines, 3+ distinct concepts, 3+ clustered files), which are not gradeable; concrete pressure decides whether structure is justified:',
   GROWTH_GUARDS_BLOCK,
   'Also audit general quality: correctness (broken behaviour, silent failures, edge cases), security (tainted input, secrets, unsafe parsing), complexity (long functions, parameter sprawl, redundant state), deslop (dead code, duplicated logic, AI residue), tests (weak assertions, mocked SUT).',
 ].join('\n')

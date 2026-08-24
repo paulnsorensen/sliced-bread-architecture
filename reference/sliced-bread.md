@@ -3,9 +3,7 @@
 Supplement to the compact rules in the global agent instructions. Read this when
 reviewing architecture decisions or planning new domain structure.
 
-This file is the canonical source for the rules and their severities. Every other
-copy — the site page, the skills, the audit rubric — carries the marker-fenced blocks
-below verbatim.
+This file is the sole authority for the rules, severities, and growth outcomes. Every consumer must preserve the relevant marker-fenced blocks verbatim; no executable projection may override this reference.
 
 ## Why Vertical Slices?
 
@@ -38,10 +36,7 @@ with no `entrypoints/` is not in violation.
 
 ## Why Organic Growth?
 
-Pre-creating folders, abstract base classes, and registries for a single implementation
-is speculative architecture. It costs complexity now for flexibility that may never
-be needed. The growth pattern (one file → extract sibling → facade + folder) means
-structure emerges from actual pressure, not imagination.
+Pre-creating folders, abstract base classes, and registries without a concrete need is speculative architecture. It costs complexity now for flexibility that may never be needed. The growth pattern (one file → extract sibling → facade + folder) means structure emerges from actual pressure, not imagination.
 
 **Advisory growth signals** — these prompt a look, never a graded violation:
 
@@ -49,29 +44,31 @@ structure emerges from actual pressure, not imagination.
 - 3+ related files cluster around a sub-concept → create subdirectory
 - A file becomes an import hub for its children → it's now a facade
 
-What tools grade instead is premature abstraction (an abstraction standing on a
-single concrete use), implementation share (crust size relative to slice size),
-public-surface size, and lifetime mixing.
+What tools grade instead is unsupported structure: a directory or abstraction with no demonstrated pressure. Two concrete consumers are the normal evidence threshold, not a hard requirement. Tools also grade implementation share (crust size relative to slice size), public-surface size, and lifetime mixing.
 
-**Not growth triggers:**
+**Not evidence of pressure:**
 
 - "We might need this later"
 - "This looks like it could be its own module"
-- A single implementation of a pattern (one adapter, one strategy, one handler)
+- A single implementation created only because the pattern may be useful later
 
-**Growth guards** — false positives to suppress when grading growth. "Numeric
-thresholds" in the guards below means the advisory signals above (~200 lines, 3+
-concepts, 3+ clustered files) — not the 2+-concrete-uses check, which stays
-gradeable:
+**Growth guards** — false positives to suppress when grading growth. Numeric thresholds remain advisory; concrete pressure decides whether structure is justified:
 
 <!-- doctrine:growth-guards:start -->
 
+- A single consumer does not by itself prove premature abstraction; grade whether concrete pressure exists. Two consumers are normal evidence, not a hard requirement.
 - New single-file concepts that stayed single files are correct; do not flag them.
-- A dispatcher introduced to break a cross-slice cycle is not premature abstraction, even with one event and one subscriber.
+- A dispatcher introduced to break a cross-slice cycle is demonstrated pressure, even with one event and one subscriber.
 - Numeric thresholds are advisory signals, not gradeable violations; grade implementation share, public-surface size, and lifetime mixing.
-- In a language whose only privacy mechanism is file placement, a subdirectory that exists to mark its contents internal is the visibility mechanism, not growth structure; do not grade it against the 2+-concrete-uses check, even with a single file inside.
+- In a language whose only privacy mechanism is file placement, a subdirectory marking its contents internal is demonstrated pressure for that visibility boundary, even with a single file inside.
 
 <!-- doctrine:growth-guards:end -->
+
+<!-- doctrine:growth-summary:start -->
+
+Demonstrated pressure, not a numeric count, justifies new directories and abstractions. Two concrete consumers are the normal evidence threshold, not a hard requirement. A cycle-breaking event dispatcher and a one-file positional crust are canonical examples of pressure that can justify structure with one consumer.
+
+<!-- doctrine:growth-summary:end -->
 
 ## Anti-Patterns
 

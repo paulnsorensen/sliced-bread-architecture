@@ -1,6 +1,7 @@
 # architecture
 
 <!-- HALLOUMINATE:INDEX-START -->
+
 - [audit-tool-testing](./audit-tool-testing.md) — Audit tool testing
 - [crust-definition](./crust-definition.md) — Crust definition
 - [doctrine-canonical-source](./doctrine-canonical-source.md) — Doctrine canonical source
@@ -9,4 +10,5 @@
 - [framework-leaning](./framework-leaning.md) — Leaning into the framework
 - [growth-signals-advisory](./growth-signals-advisory.md) — Growth is pressure-first
 - [skill-distribution](./skill-distribution.md) — Skill distribution
+
 <!-- HALLOUMINATE:INDEX-END -->

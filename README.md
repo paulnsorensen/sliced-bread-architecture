@@ -29,8 +29,9 @@ adapters/      →  domains/*
    language's native form, never its internals.
 3. **Model purity** — domain code imports stdlib, `common/`, and sibling
    public APIs; infrastructure hides behind ports.
-4. **Growth justification** — every directory and abstraction has 2+
-   concrete uses.
+4. **Growth justification** — demonstrated pressure justifies each
+   directory and abstraction; two concrete consumers are normal evidence,
+   not a hard requirement.
 5. **Event usage** — events resolve reverse dependencies, not general
    messaging.
 

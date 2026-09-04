@@ -79,19 +79,15 @@ executes at import time.
 
 ### 4. Growth justification
 
-Every new directory or abstraction needs 2+ concrete uses. An abstract base
-with one implementation, an event bus interface when no event exists yet, or a
-registry with one plugin is premature abstraction — **medium**. "Numeric
-thresholds" in the guards below means the advisory growth signals (~200 lines,
-3+ concepts, 3+ clustered files), not this check. Suppress these false
-positives:
+New directories and abstractions require demonstrated pressure. Two concrete uses are the normal evidence threshold, not a hard requirement. An abstract base with one implementation, an event bus interface when no event exists yet, or a registry with one plugin is medium only when no concrete pressure justifies it. "Numeric thresholds" in the guards below means the advisory growth signals (~200 lines, 3+ concepts, 3+ clustered files), not gradeable limits. Suppress these false positives:
 
 <!-- doctrine:growth-guards:start -->
 
+- A single consumer does not by itself prove premature abstraction; grade whether concrete pressure exists. Two consumers are normal evidence, not a hard requirement.
 - New single-file concepts that stayed single files are correct; do not flag them.
-- A dispatcher introduced to break a cross-slice cycle is not premature abstraction, even with one event and one subscriber.
+- A dispatcher introduced to break a cross-slice cycle is demonstrated pressure, even with one event and one subscriber.
 - Numeric thresholds are advisory signals, not gradeable violations; grade implementation share, public-surface size, and lifetime mixing.
-- In a language whose only privacy mechanism is file placement, a subdirectory that exists to mark its contents internal is the visibility mechanism, not growth structure; do not grade it against the 2+-concrete-uses check, even with a single file inside.
+- In a language whose only privacy mechanism is file placement, a subdirectory marking its contents internal is demonstrated pressure for that visibility boundary, even with a single file inside.
 
 <!-- doctrine:growth-guards:end -->
 

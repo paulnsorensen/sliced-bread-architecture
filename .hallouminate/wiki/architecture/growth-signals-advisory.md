@@ -1,53 +1,31 @@
-# Growth signals are advisory, not gradeable
+# Growth is pressure-first
 
-The numeric growth triggers in the doctrine — a file passing ~200 lines, a
-file holding 3+ distinct concepts, 3+ related files clustering around a
-sub-concept — are **advisory signals that prompt a look**, never graded
-violations. The only growth check that stays gradeable is 2+ concrete uses
-for a directory or abstraction. What review tools actually grade instead is
-implementation share (crust size relative to slice size), public-surface
-size, and lifetime mixing.
+Demonstrated pressure, not a numeric count, justifies a new directory or abstraction. Two concrete consumers are the normal evidence threshold because they prove reuse cheaply, but they are not a hard requirement. A one-consumer structure is a medium finding only when no concrete pressure explains it.
 
 ## Why
 
-Two things collided. First, `reference/sliced-bread.md` defined these
-numeric triggers, but neither the audit script nor the review skill actually
-implemented them — both graded only "2+ concrete uses" — so the most
-checkable-looking criteria in the doctrine were dead letters that nothing
-enforced. Second, PR #17 declared a 250-line crust healthy because it
-constituted 100% of a pure-factory leaf slice, directly contradicting the
-~200-line trigger read as a limit. See ADR-003,
-`docs/adr/sliced-bread-doctrine-revision-003.md` (read in full).
+Organic growth exists to prevent speculative architecture, not to enforce a counting ritual. A cross-slice cycle can require a dispatcher before a second event exists. A language without native visibility can require an internal subdirectory while it contains one file. In both cases the structural need is already observable.
 
-Making ~200 lines an enforceable limit was considered and rejected: it grades
-length rather than depth and would fire on legitimately long leaf files, and
-PR #17's calibration would have had to bend to a number with no evidentiary
-basis. Dropping the numbers entirely was also rejected — the concrete
-calibration is what makes the growth rule teachable, even though it isn't
-what tooling grades.
+Numeric signals still prompt inspection:
+
+- a file passes roughly 200 lines or holds three distinct concepts;
+- three related files cluster around one sub-concept; or
+- a file becomes an import hub for its children.
+
+These signals are advisory. Review tools grade the demonstrated need, implementation share, public-surface size, and lifetime mixing.
 
 ## Practical effect for review
 
-When citing a growth finding, cite the ratio (implementation share) and
-surface count as evidence — not "the file is over 200 lines" as if that were
-itself a violation. The numbers remain useful as a prompt for a human or
-audit pass to _look_, not as the grading criterion.
+Ask what concrete pressure the structure resolves. Two consumers are strong evidence, but another observable constraint can answer the question. If no pressure is present and only one consumer exists, grade the abstraction medium. Cite the pressure or its absence, not a numeric threshold alone.
 
-## Growth guards (false positives to suppress)
+## Growth guards
 
-The `growth-guards` marker-fenced block (kept in sync across consumers per
-[[architecture/doctrine-canonical-source]]) lists false positives to
-suppress when grading growth:
+The checked `doctrine:growth-guards` projection suppresses recurring false positives:
 
-- A new single-file concept that stayed a single file is correct, not a
-  finding.
-- A dispatcher introduced to break a cross-slice cycle is not premature
-  abstraction, even with one event and one subscriber — see
-  [[architecture/event-model]].
-- The numeric thresholds are advisory signals, not gradeable violations;
-  grade implementation share, public-surface size, and lifetime mixing
-  (scoped to the numeric signals — the 2+-concrete-uses check stays
-  gradeable).
-- In a language whose only privacy mechanism is file placement, a
-  subdirectory marking its contents internal is the visibility mechanism,
-  not growth structure — see [[architecture/crust-definition]].
+- A single consumer is evidence to inspect, not an automatic violation.
+- A new concept that remains one file has not introduced structural growth.
+- A cycle-breaking dispatcher is justified even with one event and one subscriber; see [[architecture/event-model]].
+- Numeric size and clustering thresholds are advisory.
+- A positional privacy directory is justified even with one file; see [[architecture/crust-definition]].
+
+The ordered executable cases are projected from `reference/sliced-bread.md` through `reference/doctrine-contracts.json`; see [[architecture/doctrine-canonical-source]].

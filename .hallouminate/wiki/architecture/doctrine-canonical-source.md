@@ -24,5 +24,6 @@ The dependency-free checker reads `reference/sliced-bread.md` as canonical and, 
 - **Marker blocks are authored outputs.** Runtime guidance points to them instead of restating outcomes nearby.
 - **Missing consumers are skipped, not failed.** A declared consumer file that does not exist logs `skipped (not present)`; deleting a consumer does not fail the check.
 - **Keep marker bodies Prettier-stable.** Verbatim comparison is deliberate.
+- **In a stacked PR, describe only the tooling on your own layer.** PR #35's ADR Confirmation sections described the contracts checker that lands in PR #36; on `main` between merges those citations dangle. The layer that adds a checker also owns the ADR and wiki sentences that cite it.
 
 See [[architecture/growth-signals-advisory]] for the pressure-first growth decision.

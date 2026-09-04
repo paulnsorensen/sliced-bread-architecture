@@ -1,6 +1,6 @@
 # Doctrine canonical source
 
-`reference/sliced-bread.md` is the sole authority for doctrine, including severity and growth outcomes. `reference/doctrine-contracts.json` names that file as its source and provides an executable projection of the finite ordered severity and growth cases. JSON never overrides the reference.
+`reference/sliced-bread.md` is the sole authority for doctrine, including severity and growth outcomes. `reference/doctrine-contracts.json` provides an executable projection of the finite ordered severity and growth cases. JSON never overrides the reference.
 
 Authored consumers carry checker-rendered `doctrine:severity-cases` and `doctrine:growth-cases` tables, plus the legacy `doctrine:arrows`, `doctrine:severity`, `doctrine:growth-guards`, and `doctrine:growth-summary` blocks. Change the authoritative reference and its JSON projection in the same commit, copy the rendered table or changed block byte-for-byte to every declared consumer, and run `node scripts/check-contracts.mjs`.
 
@@ -25,7 +25,8 @@ CI runs `node scripts/check-contracts.mjs` and its fixture-backed Node suite on 
 
 ## Gotchas
 
-- **The reference owns decisions.** JSON is a projection, not a second authority.
+- **The reference owns decisions.** JSON is a projection, not a second authority. When the reference's case block and the JSON render disagree, the checker reports `reference/doctrine-contracts.json … diverges from reference/sliced-bread.md`; every other consumer is compared against the reference block, never against the render.
+- **Divergence errors name the first differing line.** Each message ends with `(expected: … | actual: …)`; there is no regeneration command, so fix the consumer by hand from that line.
 - **Marker tables and blocks are authored outputs.** Runtime guidance points to them instead of restating outcomes nearby.
 - **Missing consumers fail.** A declared consumer file that does not exist logs a missing-file error and the check exits non-zero; deleting a consumer cannot silently reduce coverage.
 - **Keep marker bodies Prettier-stable.** Verbatim comparison is deliberate.

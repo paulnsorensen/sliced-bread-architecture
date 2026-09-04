@@ -17,9 +17,10 @@ superseded_by: ADR-006
 ## Confirmation
 
 - `reference/sliced-bread.md` identifies itself as the canonical source and carries the marker-fenced arrows, severity, growth-guards, and growth-summary blocks consumed by the other copies.
-- `scripts/check-doctrine-sync.mjs` compares those marker-fenced blocks verbatim against each declared consumer, skipping consumers that are not present; `.github/workflows/lint.yml` runs `node scripts/check-doctrine-sync.mjs`.
+- `scripts/check-contracts.mjs` loads `reference/doctrine-contracts.json`, renders the expected severity and growth case tables, and checks them plus the legacy arrows/severity/growth-guards blocks, growth-summary, skill catalog, and ADR lifecycle metadata against every declared consumer, failing closed when a declared file or block is missing; `.github/workflows/lint.yml` runs `node scripts/check-contracts.mjs` and `node --test tests/check-contracts.test.mjs`.
 
 ## References
 
-- `scripts/check-doctrine-sync.mjs` — marker-fenced block drift checker across declared consumers.
-- `.github/workflows/lint.yml` — CI wiring for the doctrine-sync checker.
+- `reference/doctrine-contracts.json` — executable severity and growth case authority.
+- `scripts/check-contracts.mjs` — consumer, catalog, summary, and ADR contract checker.
+- `.github/workflows/lint.yml` — CI wiring for the contract checker and its tests.

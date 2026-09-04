@@ -3,7 +3,7 @@
 Supplement to the compact rules in the global agent instructions. Read this when
 reviewing architecture decisions or planning new domain structure.
 
-This file is the sole authority for the rules, severities, and growth outcomes. Every consumer must preserve the relevant marker-fenced blocks verbatim; no executable projection may override this reference.
+This file is the sole authority for the rules, severities, and growth outcomes. Every consumer must preserve the relevant marker-fenced blocks verbatim. `reference/doctrine-contracts.json` is the executable projection and may not override this reference.
 
 ## Why Vertical Slices?
 
@@ -69,6 +69,18 @@ What tools grade instead is unsupported structure: a directory or abstraction wi
 Demonstrated pressure, not a numeric count, justifies new directories and abstractions. Two concrete consumers are the normal evidence threshold, not a hard requirement. A cycle-breaking event dispatcher and a one-file positional crust are canonical examples of pressure that can justify structure with one consumer.
 
 <!-- doctrine:growth-summary:end -->
+
+<!-- prettier-ignore-start -->
+<!-- doctrine:growth-cases:start -->
+
+| ID | Given | Expected | Rationale |
+| --- | --- | --- | --- |
+| `growth-cycle-event` | An event dispatcher is introduced to break a cross-slice cycle. | `allow` | The dispatcher removes a concrete cycle and is a canonical exception to the pressure-first growth signal. |
+| `growth-positional-one-file` | A one-file positional crust marks internal visibility in a language without another privacy mechanism. | `allow` | The directory is a visibility boundary rather than speculative growth structure, even when it contains one file. |
+| `growth-single-unpressured` | A new abstraction has one concrete consumer and no demonstrated pressure. | `medium` | The normal two-concrete-consumer signal has not been met, so the abstraction should be challenged as premature rather than treated as a blocker. |
+
+<!-- doctrine:growth-cases:end -->
+<!-- prettier-ignore-end -->
 
 ## Anti-Patterns
 
@@ -310,3 +322,16 @@ When reviewing code for architecture compliance, check:
 | low      | Single-consumer crust bypass; naming drift                                                                                                                           |
 
 <!-- doctrine:severity:end -->
+
+<!-- prettier-ignore-start -->
+<!-- doctrine:severity-cases:start -->
+
+| ID | Given | Expected | Rationale |
+| --- | --- | --- | --- |
+| `severity-import-exec` | A domain module executes infrastructure work while it is imported. | `blocker` | Import-time side effects make every consumer pay infrastructure cost and can fail before application startup is controlled. |
+| `severity-static-domain-infra` | A domain model has a static dependency on infrastructure. | `medium` | The dependency violates model purity and increases change coupling, but a static edge alone is not an import-time execution failure. |
+| `severity-static-concrete-adapter` | A use case or application service imports a concrete adapter instead of a domain port. | `medium` | The application layer is coupled to infrastructure selection; dependency injection through a port restores the intended boundary. |
+| `severity-other-forbidden-edge` | A dependency edge points in a forbidden direction and does not match a more specific severity case. | `blocker` | Unmatched structural inversions break the slice dependency contract and require immediate correction. |
+
+<!-- doctrine:severity-cases:end -->
+<!-- prettier-ignore-end -->

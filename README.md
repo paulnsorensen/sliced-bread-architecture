@@ -29,11 +29,16 @@ adapters/      →  domains/*
    language's native form, never its internals.
 3. **Model purity** — domain code imports stdlib, `common/`, and sibling
    public APIs; infrastructure hides behind ports.
-4. **Growth justification** — demonstrated pressure justifies each
-   directory and abstraction; two concrete consumers are normal evidence,
-   not a hard requirement.
+4. **Growth justification** — demonstrated pressure justifies new structure;
+   two concrete consumers are normal evidence, not a hard requirement.
 5. **Event usage** — events resolve reverse dependencies, not general
    messaging.
+
+<!-- doctrine:growth-summary:start -->
+
+Demonstrated pressure, not a numeric count, justifies new directories and abstractions. Two concrete consumers are the normal evidence threshold, not a hard requirement. A cycle-breaking event dispatcher and a one-file positional crust are canonical examples of pressure that can justify structure with one consumer.
+
+<!-- doctrine:growth-summary:end -->
 
 Start with [`reference/sliced-bread.md`](reference/sliced-bread.md).
 

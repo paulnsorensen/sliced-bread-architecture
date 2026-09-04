@@ -72,14 +72,10 @@ test('DoctrineContractsV1 is a reference-owned ordered projection', async () => 
   const contract = JSON.parse(await readFile(join(ROOT, CONTRACT), 'utf8'))
   assert.deepEqual(Object.keys(contract).sort(), [
     'growth_cases',
-    'match_policy',
     'schema_version',
     'severity_cases',
-    'source',
   ])
   assert.equal(contract.schema_version, 1)
-  assert.equal(contract.source, 'reference/sliced-bread.md')
-  assert.equal(contract.match_policy, 'first-match')
   assert.deepEqual(
     contract.severity_cases.map(({ id, expected }) => [id, expected]),
     [
@@ -111,8 +107,6 @@ test('DoctrineContractsV1 is a reference-owned ordered projection', async () => 
 test('contract schema rejects invalid generic case data', async () => {
   const cases = [
     ['schema_version', (contract) => (contract.schema_version = 2)],
-    ['source', (contract) => (contract.source = 'skills/sliced-bread-review/SKILL.md')],
-    ['match_policy', (contract) => (contract.match_policy = 'all')],
     [
       'severity_cases[1].id',
       (contract) => (contract.severity_cases[1].id = contract.severity_cases[0].id),
@@ -170,6 +164,37 @@ test('declared consumers fail closed on missing or divergent blocks', async () =
     await removeFixture(divergentRoot)
   }
 
+  const growthDivergentRoot = await fixture()
+  try {
+    await copyContractTree(growthDivergentRoot)
+    const relative = 'site/src/content/docs/reference/sliced-bread.md'
+    await replaceBlock(join(growthDivergentRoot, relative), GROWTH_MARKER, 'corrupt')
+    const result = runChecker(growthDivergentRoot)
+    assert.equal(result.status, 1)
+    assert.match(result.output, new RegExp(escapeRegExp(relative)))
+    assert.match(result.output, /doctrine:growth-cases/)
+  } finally {
+    await removeFixture(growthDivergentRoot)
+  }
+
+  const referenceDivergentRoot = await fixture()
+  try {
+    await copyContractTree(referenceDivergentRoot)
+    await replaceBlock(
+      join(referenceDivergentRoot, 'reference/sliced-bread.md'),
+      SEVERITY_MARKER,
+      'corrupt',
+    )
+    const result = runChecker(referenceDivergentRoot)
+    assert.equal(result.status, 1)
+    assert.match(
+      result.output,
+      /reference\/doctrine-contracts\.json: contract block doctrine:severity-cases: diverges from reference\/sliced-bread\.md/,
+    )
+  } finally {
+    await removeFixture(referenceDivergentRoot)
+  }
+
   const legacyRoot = await fixture()
   try {
     await copyContractTree(legacyRoot)
@@ -184,13 +209,18 @@ test('declared consumers fail closed on missing or divergent blocks', async () =
 })
 
 test('pressure-first growth summary is an exact reference projection', async () => {
-  const paths = ['reference/sliced-bread.md', 'README.md', 'site/src/content/docs/index.mdx']
+  const paths = [
+    'reference/sliced-bread.md',
+    'README.md',
+    'site/src/content/docs/index.mdx',
+    'site/src/content/docs/reference/sliced-bread.md',
+  ]
   const summaries = await Promise.all(
     paths.map(async (path) =>
       block(await readFile(join(ROOT, path), 'utf8'), GROWTH_SUMMARY_MARKER),
     ),
   )
-  assert.deepEqual(summaries, [summaries[0], summaries[0], summaries[0]])
+  assert.deepEqual(summaries, [summaries[0], summaries[0], summaries[0], summaries[0]])
   assert.match(summaries[0], /Demonstrated pressure/)
   assert.match(summaries[0], /normal evidence threshold/)
 
@@ -208,6 +238,23 @@ test('pressure-first growth summary is an exact reference projection', async () 
     assert.match(result.output, /doctrine:growth-summary/)
   } finally {
     await removeFixture(root)
+  }
+
+  const siteRoot = await fixture()
+  try {
+    await copyContractTree(siteRoot)
+    const relative = 'site/src/content/docs/reference/sliced-bread.md'
+    await replaceBlock(
+      join(siteRoot, relative),
+      GROWTH_SUMMARY_MARKER,
+      'Add abstractions before demonstrated pressure; two consumers are irrelevant.',
+    )
+    const result = runChecker(siteRoot)
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.output, new RegExp(escapeRegExp(relative)))
+    assert.match(result.output, /doctrine:growth-summary/)
+  } finally {
+    await removeFixture(siteRoot)
   }
 })
 

@@ -14,10 +14,10 @@ This is intentionally check-only. `scripts/check-contracts.mjs` does not rewrite
 
 The dependency-free checker fails closed when a declared file or marker block is missing, malformed, or divergent. It verifies:
 
-- the contract's schema fields (`schema_version`, `source`, `match_policy`), unique case IDs, ordered arrays, and outcome vocabularies;
+- the contract's schema fields (`schema_version`), unique case IDs, ordered arrays, and outcome vocabularies;
 - rendered severity and growth case tables across the reference, its site twin, the review skill, and the audit script;
 - the legacy arrows, severity, and growth-guards blocks across those same consumers plus the depth skill's growth-guards copy;
-- exact pressure-first growth-summary projections in the README and site index;
+- exact pressure-first growth-summary projections in the README, site index, and the reference's site twin;
 - catalog parity between the skill directories actually shipped and the skills README and site catalog; and
 - ADR lifecycle metadata (status, dates, supersession links) plus non-empty Confirmation and References sections.
 

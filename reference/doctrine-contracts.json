@@ -1,7 +1,5 @@
 {
   "schema_version": 1,
-  "source": "reference/sliced-bread.md",
-  "match_policy": "first-match",
   "severity_cases": [
     {
       "id": "severity-import-exec",

@@ -13,13 +13,7 @@ const MARKERS = {
   growthSummary: 'doctrine:growth-summary',
 }
 const CASE_FIELDS = ['id', 'given', 'expected', 'rationale']
-const CONTRACT_FIELDS = [
-  'schema_version',
-  'source',
-  'match_policy',
-  'severity_cases',
-  'growth_cases',
-]
+const CONTRACT_FIELDS = ['schema_version', 'severity_cases', 'growth_cases']
 const CASE_FAMILIES = [
   {
     field: 'severity_cases',
@@ -35,7 +29,6 @@ const CASE_FAMILIES = [
   },
 ]
 const CASE_CONSUMERS = [
-  { file: REFERENCE_PATH, blocks: [MARKERS.severity, MARKERS.growth] },
   {
     file: 'site/src/content/docs/reference/sliced-bread.md',
     blocks: [MARKERS.severity, MARKERS.growth],
@@ -48,12 +41,16 @@ const CASE_CONSUMERS = [
 ]
 const LEGACY_BLOCKS = ['doctrine:arrows', 'doctrine:severity', 'doctrine:growth-guards']
 const LEGACY_CONSUMERS = [
-  { file: 'site/src/content/docs/reference/sliced-bread.md', blocks: LEGACY_BLOCKS },
+  {
+    file: 'site/src/content/docs/reference/sliced-bread.md',
+    blocks: [...LEGACY_BLOCKS, MARKERS.growthSummary],
+  },
   { file: 'skills/sliced-bread-review/SKILL.md', blocks: LEGACY_BLOCKS },
   { file: 'skills/sliced-bread-audit/sliced-bread-audit.js', blocks: LEGACY_BLOCKS },
   { file: 'skills/sliced-bread-depth/SKILL.md', blocks: ['doctrine:growth-guards'] },
+  { file: 'README.md', blocks: [MARKERS.growthSummary] },
+  { file: 'site/src/content/docs/index.mdx', blocks: [MARKERS.growthSummary] },
 ]
-const SUMMARY_CONSUMERS = ['README.md', 'site/src/content/docs/index.mdx']
 const CATALOG_FILES = ['skills/README.md', 'site/src/content/docs/skills.md']
 const ADR_STATUSES = new Set(['proposed', 'accepted', 'amended', 'superseded', 'deprecated'])
 const READ_CACHE = new Map()
@@ -62,17 +59,25 @@ function absolutePath(file) {
   return join(ROOT, file)
 }
 
-function readText(file, errors, detail = 'file') {
+function readRaw(file) {
   if (READ_CACHE.has(file)) return READ_CACHE.get(file)
   let result
   try {
     result = { ok: true, text: readFileSync(absolutePath(file), 'utf8') }
   } catch (error) {
-    const code = error?.code ?? 'UNKNOWN'
-    errors.push(`${file}: ${detail} is ${code === 'ENOENT' ? 'missing' : 'unreadable'} (${code})`)
-    result = { ok: false, code }
+    result = { ok: false, code: error?.code ?? 'UNKNOWN' }
   }
   READ_CACHE.set(file, result)
+  return result
+}
+
+function readText(file, errors, detail = 'file') {
+  const result = readRaw(file)
+  if (!result.ok) {
+    errors.push(
+      `${file}: ${detail} is ${result.code === 'ENOENT' ? 'missing' : 'unreadable'} (${result.code})`,
+    )
+  }
   return result
 }
 
@@ -162,12 +167,6 @@ function loadContract(errors) {
   if (contract.schema_version !== 1) {
     errors.push(`${CONTRACT_PATH}: contract field schema_version: expected 1`)
   }
-  if (contract.source !== REFERENCE_PATH) {
-    errors.push(`${CONTRACT_PATH}: contract field source: expected ${REFERENCE_PATH}`)
-  }
-  if (contract.match_policy !== 'first-match') {
-    errors.push(`${CONTRACT_PATH}: contract field match_policy: expected first-match`)
-  }
 
   const seenIds = new Set()
   for (const { field, idPattern, outcomes } of CASE_FAMILIES) {
@@ -204,61 +203,68 @@ function loadContract(errors) {
   return errors.some((error) => error.startsWith(`${CONTRACT_PATH}:`)) ? null : contract
 }
 
-function checkCaseConsumers(contract, errors, checked) {
-  const rendered = new Map(
-    CASE_FAMILIES.map(({ field, marker }) => [marker, renderCaseBlock(contract[field])]),
-  )
-  for (const consumer of CASE_CONSUMERS) {
+function firstDivergence(expected, actual) {
+  const expectedLines = expected.split('\n')
+  const actualLines = actual.split('\n')
+  const length = Math.max(expectedLines.length, actualLines.length)
+  for (let index = 0; index < length; index += 1) {
+    if (expectedLines[index] !== actualLines[index]) {
+      return ` (expected: ${expectedLines[index] ?? '<missing>'} | actual: ${actualLines[index] ?? '<missing>'})`
+    }
+  }
+  return ''
+}
+
+function checkProjections(consumers, expectedByMarker, sourceLabel, errors) {
+  for (const consumer of consumers) {
     const result = readText(consumer.file, errors)
     if (!result.ok) continue
     for (const marker of consumer.blocks) {
       const actual = extractBlock(result.text, marker, consumer.file, errors)
-      if (actual !== null && actual !== rendered.get(marker)) {
-        errors.push(`${consumer.file}: contract block ${marker}: diverges from ${CONTRACT_PATH}`)
+      const expected = expectedByMarker.get(marker)
+      if (actual !== null && expected != null && actual !== expected) {
+        errors.push(
+          `${consumer.file}: contract block ${marker}: diverges from ${sourceLabel}` +
+            firstDivergence(expected, actual),
+        )
       }
     }
   }
-  checked.push(`checked reference-owned case projections (${CASE_CONSUMERS.length} consumers)`)
+}
+
+function checkCaseConsumers(contract, errors, checked) {
+  const rendered = new Map(
+    CASE_FAMILIES.map(({ field, marker }) => [marker, renderCaseBlock(contract[field])]),
+  )
+  const expectedByMarker = new Map(rendered)
+  const reference = readText(REFERENCE_PATH, errors, 'canonical doctrine')
+  if (reference.ok) {
+    for (const marker of rendered.keys()) {
+      const referenceBlock = extractBlock(reference.text, marker, REFERENCE_PATH, errors)
+      if (referenceBlock === null) continue
+      expectedByMarker.set(marker, referenceBlock)
+      const renderedBlock = rendered.get(marker)
+      if (referenceBlock !== renderedBlock) {
+        errors.push(
+          `${CONTRACT_PATH}: contract block ${marker}: diverges from ${REFERENCE_PATH}` +
+            firstDivergence(referenceBlock, renderedBlock),
+        )
+      }
+    }
+  }
+  checkProjections(CASE_CONSUMERS, expectedByMarker, REFERENCE_PATH, errors)
+  checked.push(`checked reference-owned case projections (${CASE_CONSUMERS.length + 1} consumers)`)
 }
 
 function checkLegacyConsumers(errors, checked) {
   const canonical = readText(REFERENCE_PATH, errors, 'canonical doctrine')
   if (!canonical.ok) return
-  const blocks = new Map(
-    LEGACY_BLOCKS.map((marker) => [
-      marker,
-      extractBlock(canonical.text, marker, REFERENCE_PATH, errors),
-    ]),
+  const markers = [...LEGACY_BLOCKS, MARKERS.growthSummary]
+  const expectedByMarker = new Map(
+    markers.map((marker) => [marker, extractBlock(canonical.text, marker, REFERENCE_PATH, errors)]),
   )
-  for (const consumer of LEGACY_CONSUMERS) {
-    const result = readText(consumer.file, errors)
-    if (!result.ok) continue
-    for (const marker of consumer.blocks) {
-      const actual = extractBlock(result.text, marker, consumer.file, errors)
-      const expected = blocks.get(marker)
-      if (actual !== null && expected !== null && actual !== expected) {
-        errors.push(`${consumer.file}: contract block ${marker}: diverges from ${REFERENCE_PATH}`)
-      }
-    }
-  }
-  checked.push('checked authored doctrine blocks (arrows, severity, growth guards)')
-}
-
-function checkGrowthSummaries(errors, checked) {
-  const canonical = readText(REFERENCE_PATH, errors, 'canonical doctrine')
-  if (!canonical.ok) return
-  const expected = extractBlock(canonical.text, MARKERS.growthSummary, REFERENCE_PATH, errors)
-  for (const file of SUMMARY_CONSUMERS) {
-    const result = readText(file, errors)
-    if (!result.ok) continue
-    const actual = extractBlock(result.text, MARKERS.growthSummary, file, errors)
-    if (actual !== null && expected !== null && actual !== expected) {
-      errors.push(
-        `${file}: contract block ${MARKERS.growthSummary}: diverges from ${REFERENCE_PATH}`,
-      )
-    }
-  }
-  checked.push('checked pressure-first growth summary projections')
+  checkProjections(LEGACY_CONSUMERS, expectedByMarker, REFERENCE_PATH, errors)
+  checked.push('checked authored doctrine blocks (arrows, severity, growth guards, growth summary)')
 }
 
 function parseCatalog(block, file, errors) {
@@ -318,8 +324,12 @@ function checkCatalog(errors, checked) {
     }
     blocks.push({ file, catalog })
   }
-  if (blocks.length === CATALOG_FILES.length && blocks[0].catalog !== blocks[1].catalog) {
-    errors.push(`${blocks[1].file}: contract block skills:catalog: diverges from ${blocks[0].file}`)
+  if (blocks.length === CATALOG_FILES.length) {
+    for (const entry of blocks.slice(1)) {
+      if (entry.catalog !== blocks[0].catalog) {
+        errors.push(`${entry.file}: contract block skills:catalog: diverges from ${blocks[0].file}`)
+      }
+    }
   }
   checked.push(`checked skill catalog projections (${expectedTools.length} shipped tools)`)
 }
@@ -406,17 +416,20 @@ function main() {
   const errors = []
   const checked = []
   const contract = loadContract(errors)
-  if (contract) checkCaseConsumers(contract, errors, checked)
+  if (contract) {
+    checkCaseConsumers(contract, errors, checked)
+  } else {
+    checked.push('skipped case-projection checks (contract invalid)')
+  }
   checkLegacyConsumers(errors, checked)
-  checkGrowthSummaries(errors, checked)
   checkCatalog(errors, checked)
   checkAdrs(errors, checked)
 
+  for (const line of checked) console.log(line)
   if (errors.length) {
     for (const error of errors) console.error(error)
     return 1
   }
-  for (const line of checked) console.log(line)
   console.log('all declared consistency contracts hold')
   return 0
 }

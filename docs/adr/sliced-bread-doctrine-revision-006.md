@@ -16,7 +16,7 @@ amends: ADR-003
 ## Confirmation
 
 - `reference/sliced-bread.md` states sole authority and contains the pressure-first summary plus ordered case tables.
-- `reference/doctrine-contracts.json` declares `reference/sliced-bread.md` as `source`.
+- `reference/doctrine-contracts.json` is rendered from `reference/sliced-bread.md` and validated against it by the checker.
 - `scripts/check-contracts.mjs` validates generic case data and exact projections without parsing prose semantics.
 - `skills/sliced-bread-review/SKILL.md`, the audit rubric, README, site, and wiki use pressure-first language.
 

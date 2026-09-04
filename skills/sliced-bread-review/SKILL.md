@@ -74,7 +74,8 @@ module in TypeScript, a public class surface elsewhere — never its internals.
 Domain files import only stdlib, `common/`, and sibling slice public APIs.
 A domain file importing an HTTP client, ORM, or queue is a violation; the fix
 is a port (protocol) defined in the domain and implemented by an adapter.
-Apply the reference-owned `doctrine:severity-cases` matrix in first-match order; do not infer outcomes from prose outside the matrix.
+Grade severity from the `doctrine:severity-cases` matrix under
+[Severity](#severity) below, in first-match order.
 
 ### 4. Growth justification
 

@@ -57,8 +57,8 @@ if (!(Number.isInteger(WORKERS) && WORKERS >= 1 && WORKERS <= 16)) {
 }
 
 // ── canonical doctrine blocks ───────────────────────────────────────────
-// Copied verbatim from reference/sliced-bread.md; the doctrine-sync check fails
-// the build if they drift. They sit inside comments so every marker and block
+// Copied verbatim from reference/sliced-bread.md; the scripts/check-contracts.mjs
+// consistency check fails the build if they drift. They sit inside comments so every marker and block
 // line stays byte-identical at column 0 — the arrows block carries a fenced code
 // block, which a JS template literal cannot hold unescaped.
 const doctrineBlock = (name, carrier) => {
@@ -167,7 +167,7 @@ const RUBRIC = [
 ].join('\n')
 
 const SEVERITY_GUIDE = [
-  'Architecture severities — grade against this table exactly:',
+  'Architecture severities — grade against these tables. Apply the reference-owned `doctrine:severity-cases` matrix in first-match order; do not infer outcomes from prose outside the matrix.',
   SEVERITY_BLOCK,
   SEVERITY_CASES_BLOCK,
   'Non-architecture severities: blocker = security hole or broken behaviour on a main path; high = a real bug; medium = meaningful complexity or dead-code debt, or test assertions too weak to catch a regression; low = minor deslop.',

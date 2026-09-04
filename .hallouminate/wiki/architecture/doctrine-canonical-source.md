@@ -1,29 +1,35 @@
 # Doctrine canonical source
 
-`reference/sliced-bread.md` is the sole authority for doctrine, including severity and growth outcomes. No executable projection overrides it.
+`reference/sliced-bread.md` is the sole authority for doctrine, including severity and growth outcomes. `reference/doctrine-contracts.json` names that file as its source and provides an executable projection of the finite ordered severity and growth cases. JSON never overrides the reference.
 
-Consumers carry the marker-fenced `doctrine:arrows`, `doctrine:severity`, `doctrine:growth-guards`, and `doctrine:growth-summary` blocks verbatim. Change the authoritative reference, copy the changed block byte-for-byte to every declared consumer, and run `node scripts/check-doctrine-sync.mjs`.
+Authored consumers carry checker-rendered `doctrine:severity-cases` and `doctrine:growth-cases` tables, plus the legacy `doctrine:arrows`, `doctrine:severity`, `doctrine:growth-guards`, and `doctrine:growth-summary` blocks. Change the authoritative reference and its JSON projection in the same commit, copy the rendered table or changed block byte-for-byte to every declared consumer, and run `node scripts/check-contracts.mjs`.
 
-## Why a drift checker exists
+## Why an executable projection exists
 
-The doctrine used to rely only on prose copies. Consumers diverged on model-purity severity, and one invented a growth violation that other consumers suppressed. Comparing marker-fenced blocks verbatim keeps the copies mechanically identical while keeping architectural meaning and decision ownership in Markdown.
+The doctrine used to rely only on prose copies. Consumers diverged on model-purity severity, and one invented a growth violation that other consumers suppressed. Exact case projections make IDs, order, outcomes, and rationales mechanically comparable while keeping architectural meaning and decision ownership in Markdown.
 
-This is intentionally check-only. `scripts/check-doctrine-sync.mjs` does not rewrite doctrine or consumers.
+This is intentionally check-only. `scripts/check-contracts.mjs` does not rewrite doctrine or consumers.
 
 ## Enforced surfaces
 
-The dependency-free checker reads `reference/sliced-bread.md` as canonical and, for each declared consumer file that exists, compares its listed marker-fenced blocks against the canonical text byte-for-byte. It verifies:
+The dependency-free checker fails closed when a declared file or marker block is missing, malformed, or divergent. It verifies:
 
-- the canonical file's arrows, severity, growth-guards, and growth-summary blocks are each present exactly once and non-empty;
-- every declared consumer's listed blocks match the canonical text verbatim;
-- `.github/workflows/lint.yml` runs the checker on every pull request and push to `main`.
+- the contract's schema fields (`schema_version`, `source`, `match_policy`), unique case IDs, ordered arrays, and outcome vocabularies;
+- rendered severity and growth case tables across the reference, its site twin, the review skill, and the audit script;
+- the legacy arrows, severity, and growth-guards blocks across those same consumers plus the depth skill's growth-guards copy;
+- exact pressure-first growth-summary projections in the README and site index;
+- catalog parity between the skill directories actually shipped and the skills README and site catalog; and
+- ADR lifecycle metadata (status, dates, supersession links) plus non-empty Confirmation and References sections.
+
+CI runs `node scripts/check-contracts.mjs` and its fixture-backed Node suite on every pull request and push to `main`.
 
 ## Gotchas
 
-- **The reference owns decisions.** No projection overrides it.
-- **Marker blocks are authored outputs.** Runtime guidance points to them instead of restating outcomes nearby.
-- **Missing consumers are skipped, not failed.** A declared consumer file that does not exist logs `skipped (not present)`; deleting a consumer does not fail the check.
+- **The reference owns decisions.** JSON is a projection, not a second authority.
+- **Marker tables and blocks are authored outputs.** Runtime guidance points to them instead of restating outcomes nearby.
+- **Missing consumers fail.** A declared consumer file that does not exist logs a missing-file error and the check exits non-zero; deleting a consumer cannot silently reduce coverage.
 - **Keep marker bodies Prettier-stable.** Verbatim comparison is deliberate.
+- **Catalog membership is derived.** Adding a skill directory requires a matching catalog row on both surfaces.
 - **In a stacked PR, describe only the tooling on your own layer.** PR #35's ADR Confirmation sections described the contracts checker that lands in PR #36; on `main` between merges those citations dangle. The layer that adds a checker also owns the ADR and wiki sentences that cite it.
 
 See [[architecture/growth-signals-advisory]] for the pressure-first growth decision.

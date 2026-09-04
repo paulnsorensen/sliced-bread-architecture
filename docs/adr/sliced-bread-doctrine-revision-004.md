@@ -5,7 +5,7 @@ last_verified: 2026-08-24
 superseded_by: ADR-006
 ---
 
-### ADR-004: reference/sliced-bread.md is canonical for rules and severities; drift is CI-checked, not regenerated [status: accepted]
+### ADR-004: reference/sliced-bread.md is canonical for rules and severities; drift is CI-checked, not regenerated [status: superseded]
 
 - **Superseded by:** ADR-006 retains one human authority while adding a checked executable projection.
 
@@ -16,11 +16,10 @@ superseded_by: ADR-006
 
 ## Confirmation
 
-- `reference/sliced-bread.md` identifies itself as the canonical source and carries the marker-fenced severity and growth blocks consumed by the other copies.
-- `scripts/check-contracts.mjs` loads `reference/doctrine-contracts.json`, renders the expected case blocks, and checks the listed reference, site, review, audit, and depth consumers plus the public catalog; `.github/workflows/lint.yml` runs `node scripts/check-contracts.mjs`.
+- `reference/sliced-bread.md` identifies itself as the canonical source and carries the marker-fenced arrows, severity, growth-guards, and growth-summary blocks consumed by the other copies.
+- `scripts/check-doctrine-sync.mjs` compares those marker-fenced blocks verbatim against each declared consumer, skipping consumers that are not present; `.github/workflows/lint.yml` runs `node scripts/check-doctrine-sync.mjs`.
 
 ## References
 
-- `reference/doctrine-contracts.json` — executable severity and growth case authority.
-- `scripts/check-contracts.mjs` — lossless consumer, catalog, summary, and ADR contract checker.
-- `.github/workflows/lint.yml` — CI wiring for the contract checker and its tests.
+- `scripts/check-doctrine-sync.mjs` — marker-fenced block drift checker across declared consumers.
+- `.github/workflows/lint.yml` — CI wiring for the doctrine-sync checker.

@@ -44,7 +44,7 @@ Pre-creating folders, abstract base classes, and registries without a concrete n
 - 3+ related files cluster around a sub-concept → create subdirectory
 - A file becomes an import hub for its children → it's now a facade
 
-What tools grade instead is unsupported structure: a directory or abstraction with no demonstrated pressure. Two concrete consumers are the normal evidence threshold, not a hard requirement. Tools also grade implementation share (crust size relative to slice size), public-surface size, and lifetime mixing.
+What tools grade instead is unsupported structure: a directory or abstraction with no demonstrated pressure. Tools also grade implementation share (crust size relative to slice size), public-surface size, and lifetime mixing.
 
 **Not evidence of pressure:**
 
@@ -52,7 +52,7 @@ What tools grade instead is unsupported structure: a directory or abstraction wi
 - "This looks like it could be its own module"
 - A single implementation created only because the pattern may be useful later
 
-**Growth guards** — false positives to suppress when grading growth. Numeric thresholds remain advisory; concrete pressure decides whether structure is justified:
+**Growth guards** — false positives to suppress when grading growth. Numeric thresholds remain advisory:
 
 <!-- doctrine:growth-guards:start -->
 
@@ -295,7 +295,7 @@ When reviewing code for architecture compliance, check:
 2. **Crust integrity** — are external consumers using the slice's public seam rather
    than reaching into internals?
 3. **Model purity** — do domain files import only stdlib, common, and sibling public APIs?
-4. **Growth justification** — does every directory/abstraction have 2+ concrete uses?
+4. **Growth justification** — does demonstrated pressure justify each directory/abstraction? Two concrete consumers are the normal evidence threshold, not a hard requirement.
 5. **Event usage** — are events used for reverse deps, not passed around as general-purpose messaging?
 
 ### Severity

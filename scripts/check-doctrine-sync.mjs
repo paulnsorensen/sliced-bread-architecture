@@ -6,12 +6,12 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 const CANONICAL = 'reference/sliced-bread.md'
-const BLOCK_NAMES = ['arrows', 'severity', 'growth-guards']
+const BLOCK_NAMES = ['arrows', 'severity', 'growth-guards', 'growth-summary']
 
 const CONSUMERS = [
   {
     file: 'site/src/content/docs/reference/sliced-bread.md',
-    blocks: ['arrows', 'severity', 'growth-guards'],
+    blocks: ['arrows', 'severity', 'growth-guards', 'growth-summary'],
   },
   { file: 'skills/sliced-bread-review/SKILL.md', blocks: ['arrows', 'severity', 'growth-guards'] },
   {

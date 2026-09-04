@@ -15,9 +15,8 @@ amends: ADR-003
 
 ## Confirmation
 
-- `reference/sliced-bread.md` states sole authority and contains the pressure-first summary plus ordered case tables.
-- `reference/doctrine-contracts.json` declares `reference/sliced-bread.md` as `source`.
-- `scripts/check-contracts.mjs` validates generic case data and exact projections without parsing prose semantics.
+- `reference/sliced-bread.md` states sole authority and contains the pressure-first growth-summary block.
+- `scripts/check-doctrine-sync.mjs` compares the marker-fenced arrows, severity, growth-guards, and growth-summary blocks verbatim across declared consumers.
 - `skills/sliced-bread-review/SKILL.md`, the audit rubric, README, site, and wiki use pressure-first language.
 
 ## References
@@ -25,5 +24,4 @@ amends: ADR-003
 - `docs/adr/sliced-bread-doctrine-revision-003.md` — advisory numeric signals and the amended growth interpretation.
 - `docs/adr/sliced-bread-doctrine-revision-004.md` — superseded single-authority implementation decision.
 - `reference/sliced-bread.md` — authoritative doctrine.
-- `reference/doctrine-contracts.json` — executable case projection.
-- `scripts/check-contracts.mjs` — projection and lifecycle checker.
+- `scripts/check-doctrine-sync.mjs` — marker-fenced block drift checker.

@@ -131,7 +131,7 @@ const RUBRIC = [
   '  3. model-purity — domain files import only stdlib, common/, and sibling slice PUBLIC APIs. A domain file importing an HTTP client / ORM / queue is a violation; the fix is a port (Protocol) implemented by an adapter.',
   '  4. growth-justification — demonstrated pressure justifies a directory or abstraction. Two concrete uses are the normal evidence threshold, not a hard requirement. A one-consumer abstraction with no demonstrated pressure is medium.',
   '  5. event-usage — events exist for reverse dependencies (B reacts to A without A knowing B). Cycles between slices must resolve via events typed in common/, not mutual imports. Events must not be general-purpose messaging.',
-  'Growth guards — false positives to suppress when grading growth. "Numeric thresholds" below means the reference advisory growth signals (~200 lines, 3+ distinct concepts, 3+ clustered files), which are not gradeable; concrete pressure decides whether structure is justified:',
+  'Growth guards — false positives to suppress when grading growth. "Numeric thresholds" below means the reference advisory growth signals (~200 lines, 3+ distinct concepts, 3+ clustered files), which are not gradeable:',
   GROWTH_GUARDS_BLOCK,
   'Also audit general quality: correctness (broken behaviour, silent failures, edge cases), security (tainted input, secrets, unsafe parsing), complexity (long functions, parameter sprawl, redundant state), deslop (dead code, duplicated logic, AI residue), tests (weak assertions, mocked SUT).',
 ].join('\n')

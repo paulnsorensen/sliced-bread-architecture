@@ -39,15 +39,15 @@ deduplicated GitHub issues.
 cp skills/sliced-bread-audit/sliced-bread-audit.js ~/.claude/workflows/
 ```
 
-Invoke with `/sliced-bread-audit [scope]`; pass `{ dry_run: true }` to perform read-only duplicate lookup and preview only the fresh issues without filing them.
+Invoke with `/sliced-bread-audit [scope]`. With `dry_run`, it performs the read-only duplicate lookup and returns the fresh-issue locations without creating labels or issues.
 
 ## sliced-bread-depth
 
 A Claude Code skill that scores every slice as a deep module: it classifies
 each crust's shape (thin facade, framework-bound, service/sim), measures the
 implementation share (crust LOC ÷ slice total LOC), and recommends which
-crusts to break down — extract, narrow, watch, healthy, or wide-by-intent —
-with the bounded review and audit tools: `sliced-bread-review` gates changes,
+crusts to break down — extract, narrow, watch, healthy, or wide-by-intent.
+Complements the other two: `sliced-bread-review` gates changes,
 `sliced-bread-audit` sweeps rules, and `sliced-bread-depth` scores depth.
 
 ```bash

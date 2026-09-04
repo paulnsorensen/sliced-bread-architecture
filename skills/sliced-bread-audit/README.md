@@ -32,4 +32,4 @@ Or with object args:
   dry_run?: boolean, max_issues?: number, max_candidates?: number, workers?: number }
 ```
 
-Requires `gh` auth in the target repo. Pass `{ dry_run: true }` to perform the same read-only duplicate lookup and return an accurate fresh-issue preview without creating labels or issues. Findings return as one flat `confirmed` list; every record carries `area: architecture | quality`. The architecture rubric is inlined, so the workflow runs without reading external doctrine files.
+Requires `gh` auth in the target repo. With `dry_run`, it performs the read-only duplicate lookup and returns the fresh-issue locations without creating labels or issues. Findings return as one flat `confirmed` list; every record carries `area: architecture | quality`. The architecture rubric is inlined, so the workflow runs without reading external doctrine files.

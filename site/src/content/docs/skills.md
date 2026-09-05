@@ -39,7 +39,13 @@ deduplicated GitHub issues.
 cp skills/sliced-bread-audit/sliced-bread-audit.js ~/.claude/workflows/
 ```
 
-Invoke with `/sliced-bread-audit [scope]`. With `dry_run`, it performs the read-only duplicate lookup and returns the fresh-issue locations without creating labels or issues.
+Invoke with `/sliced-bread-audit [scope]`.
+
+<!-- doctrine:dry-run:start -->
+
+With `dry_run`, it performs the read-only duplicate lookup and returns the fresh-issue locations without creating labels or issues.
+
+<!-- doctrine:dry-run:end -->
 
 ## sliced-bread-depth
 

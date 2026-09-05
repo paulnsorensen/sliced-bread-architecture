@@ -50,5 +50,6 @@ The website lives in `site/`:
 cd site && npm install && npm run dev
 ```
 
-PRs are gated by Prettier, markdownlint, and a site build — see
-`.github/workflows/`.
+PRs are gated by Prettier, markdownlint, and the contract and generated-site
+behavior test suite; run the complete copy-paste validation sequence in
+[`CONTRIBUTING.md`](CONTRIBUTING.md#validate-locally).

@@ -46,12 +46,18 @@ const LEGACY_CONSUMERS = [
     blocks: [...LEGACY_BLOCKS, MARKERS.growthSummary],
   },
   { file: 'skills/sliced-bread-review/SKILL.md', blocks: LEGACY_BLOCKS },
-  { file: 'skills/sliced-bread-audit/sliced-bread-audit.js', blocks: LEGACY_BLOCKS },
+  // The audit prompt grades against `doctrine:severity-cases`; it no longer projects the legacy severity table.
+  {
+    file: 'skills/sliced-bread-audit/sliced-bread-audit.js',
+    blocks: ['doctrine:arrows', 'doctrine:growth-guards'],
+  },
   { file: 'skills/sliced-bread-depth/SKILL.md', blocks: ['doctrine:growth-guards'] },
   { file: 'README.md', blocks: [MARKERS.growthSummary] },
   { file: 'site/src/content/docs/index.mdx', blocks: [MARKERS.growthSummary] },
 ]
 const CATALOG_FILES = ['skills/README.md', 'site/src/content/docs/skills.md']
+const DRY_RUN_MARKER = 'doctrine:dry-run'
+const DRY_RUN_FILES = ['skills/sliced-bread-audit/README.md', 'site/src/content/docs/skills.md']
 const ADR_STATUSES = new Set(['proposed', 'accepted', 'amended', 'superseded', 'deprecated'])
 const READ_CACHE = new Map()
 
@@ -334,6 +340,26 @@ function checkCatalog(errors, checked) {
   checked.push(`checked skill catalog projections (${expectedTools.length} shipped tools)`)
 }
 
+function checkDryRunSentence(errors, checked) {
+  const blocks = []
+  for (const file of DRY_RUN_FILES) {
+    const result = readText(file, errors)
+    if (!result.ok) continue
+    const block = extractBlock(result.text, DRY_RUN_MARKER, file, errors)
+    if (block !== null) blocks.push({ file, block })
+  }
+  if (blocks.length === DRY_RUN_FILES.length) {
+    for (const entry of blocks.slice(1)) {
+      if (entry.block !== blocks[0].block) {
+        errors.push(
+          `${entry.file}: contract block ${DRY_RUN_MARKER}: diverges from ${blocks[0].file}`,
+        )
+      }
+    }
+  }
+  checked.push('checked dry_run sentence projection (2 files)')
+}
+
 function sectionBody(text, heading) {
   const pattern = /^##\s+(.+?)\s*$/gm
   const headings = []
@@ -423,6 +449,7 @@ function main() {
   }
   checkLegacyConsumers(errors, checked)
   checkCatalog(errors, checked)
+  checkDryRunSentence(errors, checked)
   checkAdrs(errors, checked)
 
   for (const line of checked) console.log(line)

@@ -12,25 +12,33 @@ to get from "I want to help" to "my change is merged".
 - For security vulnerabilities, do **not** open a public issue — see
   [`SECURITY.md`](./SECURITY.md).
 
-## Setting up locally
+## Validate locally
+
+For a fresh checkout, this sequence installs the pinned site dependencies and
+runs the same formatting, Markdown, contract, and generated-site behavior
+checks as CI:
 
 ```sh
 git clone https://github.com/paulnsorensen/sliced-bread-architecture.git
 cd sliced-bread-architecture
-cd site && npm install   # docs site
+npm --prefix site ci
+npm exec --prefix site -- prettier --check .
+npx markdownlint-cli2@0.23.2
+node scripts/check-contracts.mjs
+node --test tests/check-contracts.test.mjs
+node --test tests/audit-boundaries.test.mjs
+node --test tests/site-404.test.mjs
 ```
 
-## Running tests
+The site behavior test builds an isolated fixture and verifies the generated 404 page. A bare site build is not equivalent because it does not assert the rendered heading, explanatory copy, and documentation link.
+
+To run the documentation site during development:
 
 ```sh
-npx prettier@3 --check .          # formatting
-npx markdownlint-cli2@0.18        # markdown structure
-node scripts/check-contracts.mjs      # doctrine consistency
-node --test tests/check-contracts.test.mjs # contract checker behavior
-cd site && npm run build          # site must build
+npm --prefix site run dev
 ```
 
-Please run the full test suite before opening a PR.
+Run the validation sequence before opening a PR.
 
 ## Submitting a pull request
 

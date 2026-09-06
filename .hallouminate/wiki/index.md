@@ -18,6 +18,11 @@ docs site that consume it.
   output) — cited claim tables, one directory per research slug. Exempt
   from the one-page-per-decision rule; pages there are evidence, not
   decisions.
+- `docs/adr/sliced-bread-doctrine-revision-*.md` is a separate, code-adjacent
+  ADR set for doctrine-text changes. `architecture/*.md` pages cite these
+  ADRs inline; they are never mirrored into `decisions/`. The `decisions/`
+  namespace holds only `slice-and-spine-review` design ADRs, which have no
+  `docs/adr` counterpart.
 
 ## Sections
 

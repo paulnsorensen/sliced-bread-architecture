@@ -29,3 +29,7 @@ The checked `doctrine:growth-guards` projection suppresses recurring false posit
 - A positional privacy directory is justified even with one file; see [[architecture/crust-definition]].
 
 The ordered executable cases are projected from `reference/sliced-bread.md` through `reference/doctrine-contracts.json`; see [[architecture/doctrine-canonical-source]].
+
+## Provenance
+
+ADR-003 (`docs/adr/sliced-bread-doctrine-revision-003.md`) first declared numeric growth thresholds advisory rather than gradeable. ADR-006 (`docs/adr/sliced-bread-doctrine-revision-006.md`) amends the two-consumer reading into the pressure-first test above and supersedes ADR-004 on the canonical-source mechanism (see [[architecture/doctrine-canonical-source]]). Read both in full for the alternatives considered.

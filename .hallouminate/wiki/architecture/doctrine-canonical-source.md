@@ -34,3 +34,7 @@ CI runs `node scripts/check-contracts.mjs` and its fixture-backed Node suite on 
 - **In a stacked PR, describe only the tooling on your own layer.** PR #35's ADR Confirmation sections described the contracts checker that lands in PR #36; on `main` between merges those citations dangle. The layer that adds a checker also owns the ADR and wiki sentences that cite it.
 
 See [[architecture/growth-signals-advisory]] for the pressure-first growth decision.
+
+## Provenance
+
+ADR-004 (`docs/adr/sliced-bread-doctrine-revision-004.md`, superseded) first made the reference canonical, requiring byte-verbatim consumer copies with no executable check. ADR-006 (`docs/adr/sliced-bread-doctrine-revision-006.md`) supersedes it: the reference stays sole authority, and `reference/doctrine-contracts.json` adds the checked executable projection described above instead of relying on hand-verified verbatim copies alone. Read both in full for the alternatives considered.

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "check": "astro check",
     "preview": "astro preview",
     "format:check": "prettier --check ."
   },
@@ -15,7 +16,9 @@
     "astro": "^7.2.10"
   },
   "devDependencies": {
-    "prettier": "3.9.6"
+    "@astrojs/check": "^0.9.10",
+    "prettier": "3.9.6",
+    "typescript": "^6.0.3"
   },
   "allowScripts": {
     "esbuild@0.28.1": true

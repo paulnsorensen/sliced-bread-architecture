@@ -45,6 +45,7 @@ jobs:
       - run: node scripts/check-contracts.mjs
       - run: node --test tests/check-contracts.test.mjs
       - run: node --test tests/audit-boundaries.test.mjs
+      - run: node --test tests/docs-accuracy.test.mjs
 
   site-build:
     name: Site build

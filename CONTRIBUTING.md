@@ -27,6 +27,7 @@ npx markdownlint-cli2@0.23.2
 node scripts/check-contracts.mjs
 node --test tests/check-contracts.test.mjs
 node --test tests/audit-boundaries.test.mjs
+node --test tests/docs-accuracy.test.mjs
 node --test tests/site-404.test.mjs
 ```
 

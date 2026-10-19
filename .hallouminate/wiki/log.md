@@ -11,3 +11,5 @@ Append-only journal of wiki-ingest decisions. Never a routing target.
 - 2026-10-19 · c5ade34e34518292 · new-page · research/architecture-metrics-tooling/fitness-functions.md · taxonomy (secondary) and executable libraries
 - 2026-10-19 · c5ade34e34518292 · new-page · sources/slopcodebench.md · source page for arXiv 2603.24755 v2; notes cheez-wiki 77–80% figure differs from v2 (77%)
 - 2026-10-19 · c5ade34e34518292 · merged · index.md · added Sections entry for the new research directory
+
+- 2026-10-19 · — · new-page · research/slice-spine-review-prior-art/index.md · curated directory index so the generated research/index.md link resolves

@@ -24,6 +24,7 @@ The doctrine grades implementation share, public-surface size, and lifetime mixi
 - Martin's I applies to a crust: a crust should have high afferent coupling and low instability.
 - Connascence gives the rule for what may cross a crust: only weak forms (name, type).
 - tach `interfaces` plus `check --exact` is the closest existing tool for crust-only imports with absence detection.
+- [[research/architecture-metrics-tooling/deterministic-vs-llm-checks]] classifies each check as deterministic or LLM-judged and proposes a ratchet gate.
 
 These are research observations, not decisions. A `/mold` spec owns any adoption choice.
 

@@ -13,3 +13,6 @@ Append-only journal of wiki-ingest decisions. Never a routing target.
 - 2026-10-19 · c5ade34e34518292 · merged · index.md · added Sections entry for the new research directory
 
 - 2026-10-19 · — · new-page · research/slice-spine-review-prior-art/index.md · curated directory index so the generated research/index.md link resolves
+
+- 2026-10-19 · — · new-page · research/architecture-metrics-tooling/deterministic-vs-llm-checks.md · deterministic vs LLM check classification and ratchet proposal from session analysis
+- 2026-10-19 · — · merged · research/architecture-metrics-tooling/architecture-metrics-tooling.md · linked the classification page from Fit with the doctrine

@@ -16,3 +16,5 @@ Append-only journal of wiki-ingest decisions. Never a routing target.
 
 - 2026-10-19 · — · new-page · research/architecture-metrics-tooling/deterministic-vs-llm-checks.md · deterministic vs LLM check classification and ratchet proposal from session analysis
 - 2026-10-19 · — · merged · research/architecture-metrics-tooling/architecture-metrics-tooling.md · linked the classification page from Fit with the doctrine
+
+- 2026-10-24 · cf17ebc5706fd025 · merged · research/architecture-metrics-tooling/deterministic-vs-llm-checks.md · depth ratchet prototype as built (per-slice keys, ADR-003 report/block, TS 5.9.3 pin); supersedes the summed metrics in the proposal

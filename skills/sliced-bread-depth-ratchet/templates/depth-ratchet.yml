@@ -1,0 +1,28 @@
+# Example job: copy to .github/workflows/depth-ratchet.yml in an adopting repository.
+# The baseline's "mode" decides whether a regression fails the job (block) or only reports (report).
+name: Depth ratchet
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  depth:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - run: npm ci
+        working-directory: tools/sliced-bread-depth-ratchet
+      - name: Gate
+        run: node tools/sliced-bread-depth-ratchet/scripts/depth-ratchet.mjs check
+      - name: Baseline loosening for the reviewer
+        run: >-
+          node tools/sliced-bread-depth-ratchet/scripts/depth-ratchet.mjs diff-baseline
+          --base "origin/${GITHUB_BASE_REF}"

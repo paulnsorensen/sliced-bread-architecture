@@ -39,4 +39,14 @@ Proposed shape, as a `sliced-bread-ratchet` skill or a measuring script in `slic
 - Tool coverage differs by language. tach covers crust exposure and unused dependencies for Python only. TypeScript needs dependency-cruiser plus custom rules.
 - A new skill is a new contract. A `/mold` spec owns the design before implementation.
 
-_Source: session analysis on 2026-10-19 over [[research/architecture-metrics-tooling/architecture-metrics-tooling]] and the hill-climb ratchet reference · Updated: 2026-10-19_
+## Depth ratchet prototype as built
+
+The depth half of the ratchet proposal exists as the `skills/sliced-bread-depth-ratchet/` skill (prototype, 2026-10-24). The boundary half (forbidden edges, crust bypass, unused declared dependencies) belongs to the separate `sliced-bread-guard` prototype.
+
+- **Runtime.** Node only, with the TypeScript compiler API pinned to 5.9.3 and `smol-toml` for `slices.toml`. Gotcha: TypeScript 7 exposes only `unstable/*` API entrypoints, so the tool does not use it.
+- **Metrics.** Six keys per slice, all lower-is-better with tolerance 0: `M08.crust_logic_statements`, `M08.share`, `M09.public_surface`, `M10.crust_complexity`, `M10.share`, and `M12.unused_exports`. The unit is a logical statement, not a physical line. Dead internal code is not in a denominator. Definitions: `skills/sliced-bread-depth-ratchet/references/metrics.md`.
+- **No sums.** Baselines are per slice. A sum over slices lets one slice improve while another regresses, so the proposal's `sum_crust_share_excess` is superseded. Martin's D is dropped, so `sum_D_over_slices` is superseded too.
+- **Numerators with shares.** Padding the internals lowers a share with no crust change, so the crust numerators are ratcheted beside the shares. `tighten` holds a share gain whose numerator did not fall until a human accepts it.
+- **ADR-003 resolution.** The default mode reports and exits 0. A repository opts in to `block` through the CODEOWNERS-owned baseline file. A block compares a slice only with its own human-approved baseline. The 200-statement and 50% size-aware values stay advisory in every mode. The ADR is unchanged.
+
+_Source: session analysis on 2026-10-19 over [[research/architecture-metrics-tooling/architecture-metrics-tooling]] and the hill-climb ratchet reference; depth-ratchet prototype session on 2026-10-24 · Updated: 2026-10-24 · Supersedes: `sum_crust_share_excess` and `sum_D_over_slices` in the proposed metric list · 2026-10-24_

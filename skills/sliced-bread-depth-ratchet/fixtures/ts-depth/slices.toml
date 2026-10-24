@@ -1,0 +1,39 @@
+version = 1
+
+[policy]
+language = "typescript"
+unmapped_files = "error"
+suppressions = "human-only"
+test_patterns = ["**/*.test.ts"]
+tsconfig = "tsconfig.json"
+
+[[slice]]
+name = "orders"
+paths = ["src/domains/orders"]
+crust = ["src/domains/orders/index.ts"]
+shape = "thin-facade"
+may_depend_on = ["pricing", "common"]
+requires = ["pricing"]
+
+[[slice]]
+name = "pricing"
+paths = ["src/domains/pricing"]
+crust = ["src/domains/pricing/index.ts"]
+shape = "thin-facade"
+may_depend_on = ["common"]
+requires = ["common"]
+
+[[spine]]
+name = "common"
+paths = ["src/domains/common"]
+may_depend_on = []
+
+[[spine]]
+name = "app"
+paths = ["src/app"]
+may_depend_on = ["orders", "pricing", "common"]
+
+[[spine]]
+name = "entrypoints"
+paths = ["src/entrypoints"]
+may_depend_on = ["app"]

@@ -1,0 +1,17 @@
+{
+  "name": "sliced-bread-depth-ratchet",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Per-slice depth metrics and a baseline ratchet for Sliced Bread TypeScript codebases",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test tests/"
+  },
+  "dependencies": {
+    "smol-toml": "1.9.1",
+    "typescript": "5.9.3"
+  }
+}

@@ -8,12 +8,13 @@ directory ships agent tooling that enforces the architecture:
 
 <!-- skills:catalog:start -->
 
-| Tool                     | Scope                                                                                                         |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------- |
-| `sliced-bread-review`    | Bounded diff architecture review against the five Sliced Bread rules; reports findings without filing issues. |
-| `sliced-bread-audit`     | Automated full-repository ten-dimension audit that verifies findings and files deduplicated GitHub issues.    |
-| `sliced-bread-depth`     | Deep-module scoring that measures each slice's crust shape and implementation share.                          |
-| `slice-and-spine-review` | Human-led whole-repository seam review that walks slices, spine, and integration seams with verdicts.         |
+| Tool                         | Scope                                                                                                           |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `sliced-bread-review`        | Bounded diff architecture review against the five Sliced Bread rules; reports findings without filing issues.   |
+| `sliced-bread-audit`         | Automated full-repository ten-dimension audit that verifies findings and files deduplicated GitHub issues.      |
+| `sliced-bread-depth`         | Deep-module scoring that measures each slice's crust shape and implementation share.                            |
+| `sliced-bread-depth-ratchet` | Deterministic per-slice depth metrics with a baseline ratchet that reports, or opt-in blocks, shallower slices. |
+| `slice-and-spine-review`     | Human-led whole-repository seam review that walks slices, spine, and integration seams with verdicts.           |
 
 <!-- skills:catalog:end -->
 
@@ -58,6 +59,14 @@ Complements the other two: `sliced-bread-review` gates changes,
 
 ```bash
 cp -r skills/sliced-bread-depth ~/.claude/skills/
+```
+
+## sliced-bread-depth-ratchet
+
+A deterministic companion to `sliced-bread-depth`. It uses the TypeScript compiler API to measure six numbers per slice: crust logic statements, implementation share, export slots, crust complexity and its share, and crust exports without an external importer. It compares each slice with its own committed, human-approved baseline. The default mode reports a regression; a repository can opt in to block on it. Fixed numeric thresholds stay advisory, as ADR-003 requires.
+
+```bash
+cp -r skills/sliced-bread-depth-ratchet tools/ && (cd tools/sliced-bread-depth-ratchet && npm ci)
 ```
 
 ## slice-and-spine-review

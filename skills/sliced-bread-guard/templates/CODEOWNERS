@@ -1,0 +1,20 @@
+# sliced-bread-guard: human-owned guard files. Replace @architecture-owners with a real team.
+# These lines only protect anything when branch protection requires code-owner review.
+/slices.toml                          @architecture-owners
+/sbguard-baseline.json                @architecture-owners
+/.dependency-cruiser.sbguard.cjs      @architecture-owners
+/tools/sliced-bread-guard/            @architecture-owners
+/.github/workflows/sliced-bread-guard.yml @architecture-owners
+/.githooks/                           @architecture-owners
+# Resolver settings and checker installation inputs: they decide which edges the checker sees.
+tsconfig*.json                        @architecture-owners
+/package.json                         @architecture-owners
+/package-lock.json                    @architecture-owners
+/npm-shrinkwrap.json                  @architecture-owners
+/pnpm-lock.yaml                       @architecture-owners
+/yarn.lock                            @architecture-owners
+/.npmrc                               @architecture-owners
+# Every CODEOWNERS location GitHub reads.
+/.github/CODEOWNERS                   @architecture-owners
+/CODEOWNERS                           @architecture-owners
+/docs/CODEOWNERS                      @architecture-owners

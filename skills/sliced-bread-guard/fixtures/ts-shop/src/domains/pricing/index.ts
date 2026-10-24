@@ -1,0 +1,1 @@
+export { discountFor } from './discount'

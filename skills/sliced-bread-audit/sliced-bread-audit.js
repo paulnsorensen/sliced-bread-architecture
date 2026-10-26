@@ -677,17 +677,24 @@ function getRedactionCount() {
   return redactions
 }
 
+// Only the issue-body trailer may carry an HTML comment marker; a forged
+// `<!-- sba:... -->` in a finding field would suppress a real future finding.
+function issueField(text, limit) {
+  const neutralized = redactSecrets(text).replace(/<!--/g, '< !--').replace(/-->/g, '-- >')
+  return boundedText(neutralized, limit)
+}
+
 function sanitizedIssue(f) {
   return {
     ...f,
-    slice: safeIssueText(f.slice, 512),
-    file: safeIssueText(f.file, 512),
-    dimension: safeIssueText(f.dimension, 128),
-    claim: safeIssueText(f.claim),
-    evidence: safeIssueText(f.evidence, MAX_ISSUE_EVIDENCE),
-    impact: safeIssueText(f.impact),
-    recommendation: safeIssueText(f.recommendation),
-    verification: safeIssueText(f.verification, 128),
+    slice: issueField(f.slice, 512),
+    file: issueField(f.file, 512),
+    dimension: issueField(f.dimension, 128),
+    claim: issueField(f.claim),
+    evidence: issueField(f.evidence, MAX_ISSUE_EVIDENCE),
+    impact: issueField(f.impact),
+    recommendation: issueField(f.recommendation),
+    verification: issueField(f.verification, 128),
   }
 }
 

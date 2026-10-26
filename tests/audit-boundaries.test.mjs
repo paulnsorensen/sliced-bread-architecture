@@ -19,7 +19,8 @@ async function auditBoundaryHarness(overrides = {}) {
     assert.notEqual(endAt, -1, `${end} must follow ${begin}`)
     return source.slice(startAt, endAt)
   }
-  const { DRY_RUN, MAX_ISSUES, MAX_CANDIDATES, WORKERS, MIN_SEVERITY, SCOPE } = {
+  const { DRY_RUN, MAX_ISSUES, MAX_CANDIDATES, WORKERS, MIN_SEVERITY, SCOPE, budgetExhausted } = {
+    budgetExhausted: () => false,
     DRY_RUN: false,
     MAX_ISSUES: 25,
     MAX_CANDIDATES: 100,
@@ -29,18 +30,18 @@ async function auditBoundaryHarness(overrides = {}) {
     ...overrides,
   }
   const factory = new Function(
+    'budgetExhausted',
     [
       `const DRY_RUN = ${JSON.stringify(DRY_RUN)}, MAX_ISSUES = ${JSON.stringify(MAX_ISSUES)}, MAX_CANDIDATES = ${JSON.stringify(MAX_CANDIDATES)}, WORKERS = ${JSON.stringify(WORKERS)}, MIN_SEVERITY = ${JSON.stringify(MIN_SEVERITY)}, SCOPE = ${JSON.stringify(SCOPE)}`,
-      'const budgetExhausted = () => false',
       extract('preamble'),
       extract('map'),
       extract('schemas'),
       extract('prompts'),
       extract('pipeline'),
-      'return { BATCH_ISSUE_SCHEMA, buildReport, citationPrompt, cleanDimensionsFrom, DIMENSIONS, DUPLICATE_SCHEMA, duplicateLookupPrompt, errorMessage, evalPrompt, failures, fileBatchPrompt, findingArea, FINDINGS_SCHEMA, getRedactionCount, mapPrompt, mapSummary, normalizeFilingBatch, normalizeFilingResult, normalizeSetup, prepareForFiling, preparedIssue, redactSecrets, RUBRIC, runBounded, safeIssueText, sanitizeFindings, selectIssueCandidates, SEVERITY_GUIDE, setupPrompt, validateArgs, verifyFindings, SEV_RANK, verifyPrompt }',
+      'return { BATCH_ISSUE_SCHEMA, buildReport, citationPrompt, cleanDimensionsFrom, DIMENSIONS, DUPLICATE_SCHEMA, duplicateLookupPrompt, errorMessage, evalPrompt, failures, fileBatchPrompt, fileIssues, findingArea, FINDINGS_SCHEMA, getRedactionCount, mapPrompt, mapSummary, normalizeFilingBatch, normalizeFilingResult, normalizeSetup, prepareForFiling, preparedIssue, redactSecrets, RUBRIC, runBounded, safeIssueText, sanitizeFindings, selectIssueCandidates, SEVERITY_GUIDE, setupPrompt, validateArgs, verifyFindings, SEV_RANK, verifyPrompt }',
     ].join('\n'),
   )
-  return factory()
+  return factory(budgetExhausted)
 }
 
 function decodeHexPayload(prompt, name) {
@@ -911,5 +912,89 @@ test('normalizeFilingBatch reports a failure for out-of-range and malformed resu
     failures.some((f) =>
       f.error.includes('invalid filing agent outcome: unexpected result indices'),
     ),
+  )
+})
+
+test('fileIssues dispatches no duplicate-lookup or filing agent once the budget is exhausted', async (t) => {
+  t.after(() => {
+    delete globalThis.agent
+  })
+  const findings = Array.from({ length: 12 }, (_, index) => ({
+    file: `src/slice-${index}/model.js`,
+    line: 1,
+    severity: 'high',
+    dimension: 'model-purity',
+    claim: 'c',
+    evidence: 'e',
+    impact: 'i',
+    recommendation: 'r',
+    slice: 's1',
+  }))
+  const setup = { gh_ok: true, repo: 'owner/repo', error: '' }
+  const dispatched = []
+  globalThis.agent = async (_prompt, opts) => {
+    dispatched.push(opts.label)
+    return opts.label.startsWith('issues:duplicates')
+      ? { existing_fingerprints: [] }
+      : { results: [] }
+  }
+
+  const exhausted = await auditBoundaryHarness({ budgetExhausted: () => true })
+  const before = await exhausted.fileIssues(exhausted.prepareForFiling(findings), setup)
+  assert.deepEqual(dispatched, [], 'an exhausted budget must not dispatch any File-phase agent')
+  assert.equal(before.issues.length, findings.length)
+  for (const issue of before.issues) {
+    assert.equal(issue.created, false)
+    assert.match(issue.skipped_reason, /budget exhausted before duplicate lookup/)
+    assert.equal(Object.hasOwn(issue, 'url'), false)
+  }
+  assert.ok(
+    exhausted.failures.some(
+      (f) => f.stage === 'file' && /budget exhausted before duplicate lookup/.test(f.error),
+    ),
+  )
+
+  let spent = false
+  globalThis.agent = async (_prompt, opts) => {
+    dispatched.push(opts.label)
+    spent = true
+    return { existing_fingerprints: [] }
+  }
+  const midRun = await auditBoundaryHarness({ budgetExhausted: () => spent })
+  const between = await midRun.fileIssues(midRun.prepareForFiling(findings), setup)
+  assert.deepEqual(
+    dispatched,
+    ['issues:duplicates-1'],
+    'a budget spent by the lookup must stop the next lookup chunk and every filing batch',
+  )
+  assert.equal(between.issues.length, findings.length)
+  assert.ok(between.issues.every((issue) => issue.created === false && issue.skipped_reason))
+  assert.ok(midRun.failures.some((f) => f.stage === 'file'))
+
+  dispatched.length = 0
+  let lookupsDone = 0
+  globalThis.agent = async (_prompt, opts) => {
+    dispatched.push(opts.label)
+    if (opts.label.startsWith('issues:duplicates')) {
+      lookupsDone += 1
+      return { existing_fingerprints: [] }
+    }
+    return { results: [] }
+  }
+  const afterLookup = await auditBoundaryHarness({ budgetExhausted: () => lookupsDone >= 2 })
+  const filing = await afterLookup.fileIssues(afterLookup.prepareForFiling(findings), setup)
+  assert.deepEqual(
+    dispatched,
+    ['issues:duplicates-1', 'issues:duplicates-2'],
+    'a budget spent after the lookup must stop every filing batch',
+  )
+  assert.equal(filing.issues.length, findings.length)
+  for (const issue of filing.issues) {
+    assert.equal(issue.created, false)
+    assert.match(issue.skipped_reason, /budget exhausted before filing/)
+  }
+  assert.deepEqual(
+    afterLookup.failures.filter((f) => f.stage === 'file').map((f) => f.file),
+    ['batch:1', 'batch:2'],
   )
 })

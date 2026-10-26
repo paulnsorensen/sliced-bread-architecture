@@ -1364,6 +1364,65 @@ function cleanDimensionsFrom({
   return failures.length || skippedSlices ? [] : DIMENSIONS.filter((d) => !nonClean.has(d))
 }
 
+const FILE_CHUNK = 10
+
+async function fileIssues(uniquePrepared, setup) {
+  const setupComplete = setup.gh_ok && setup.repo.length > 0
+  const lookup = setupComplete
+    ? (fingerprints, index) =>
+        budgetExhausted()
+          ? { ok: false, error: 'budget exhausted before duplicate lookup' }
+          : safeAgent(duplicateLookupPrompt(setup.repo, fingerprints), {
+              label: `issues:duplicates-${index + 1}`,
+              phase: 'File',
+              schema: DUPLICATE_SCHEMA,
+              model: 'haiku',
+              effort: 'low',
+            })
+    : null
+  const selection = await selectIssueCandidates(uniquePrepared, lookup, MAX_ISSUES, MAX_CANDIDATES)
+  const duplicateLookupError = selection.ok
+    ? ''
+    : `duplicate lookup failed: ${safeIssueText(selection.error, 1024)}`
+  if (duplicateLookupError) recordFilingFailure('duplicate-lookup', duplicateLookupError)
+  const toFile = selection.ok
+    ? selection.fresh
+    : (await selectIssueCandidates(uniquePrepared, null, MAX_ISSUES, MAX_CANDIDATES)).fresh
+
+  let issues = []
+  if (DRY_RUN) {
+    const dryRunReason = duplicateLookupError ? `dry_run: ${duplicateLookupError}` : 'dry_run'
+    issues = toFile.map((item) => preparedIssue(item.finding, dryRunReason))
+  } else if (!setupComplete || duplicateLookupError) {
+    const reason = duplicateLookupError || 'gh unavailable'
+    issues = toFile.map((item) => preparedIssue(item.finding, reason))
+  } else if (toFile.length) {
+    const chunks = []
+    for (let i = 0; i < toFile.length; i += FILE_CHUNK) chunks.push(toFile.slice(i, i + FILE_CHUNK))
+    const batches = await runBounded(chunks, (chunk, index) =>
+      budgetExhausted()
+        ? { ok: false, error: 'budget exhausted before filing' }
+        : safeAgent(fileBatchPrompt(chunk), {
+            label: `issues:batch-${index + 1}`,
+            phase: 'File',
+            schema: BATCH_ISSUE_SCHEMA,
+            model: 'haiku',
+            effort: 'low',
+          }),
+    )
+    issues = batches.flatMap((batch, chunkIndex) => {
+      const { results, failures: batchFailures } = normalizeFilingBatch(
+        chunks[chunkIndex].map((item) => item.finding),
+        batch,
+        `batch:${chunkIndex + 1}`,
+      )
+      failures.push(...batchFailures)
+      return results
+    })
+  }
+  return { selection, toFile, issues }
+}
+
 // test-extract:end pipeline
 const crossItem = { name: 'cross-slice', path: SCOPE, kind: 'cross-slice' }
 const evaluationItems = [...sliceMap.slices, crossItem]
@@ -1429,32 +1488,7 @@ const uniquePrepared = prepared.filter((item) => {
   return true
 })
 const uniqueConfirmed = uniquePrepared.map((item) => item.finding)
-const setupComplete = setup.gh_ok && setup.repo.length > 0
-let selection
-if (setupComplete) {
-  selection = await selectIssueCandidates(
-    uniquePrepared,
-    (fingerprints, index) =>
-      safeAgent(duplicateLookupPrompt(setup.repo, fingerprints), {
-        label: `issues:duplicates-${index + 1}`,
-        phase: 'File',
-        schema: DUPLICATE_SCHEMA,
-        model: 'haiku',
-        effort: 'low',
-      }),
-    MAX_ISSUES,
-    MAX_CANDIDATES,
-  )
-} else {
-  selection = await selectIssueCandidates(uniquePrepared, null, MAX_ISSUES, MAX_CANDIDATES)
-}
-const duplicateLookupError = selection.ok
-  ? ''
-  : `duplicate lookup failed: ${safeIssueText(selection.error, 1024)}`
-if (duplicateLookupError) recordFilingFailure('duplicate-lookup', duplicateLookupError)
-const toFile = selection.ok
-  ? selection.fresh
-  : (await selectIssueCandidates(uniquePrepared, null, MAX_ISSUES, MAX_CANDIDATES)).fresh
+const { selection, toFile, issues } = await fileIssues(uniquePrepared, setup)
 if (selection.candidate_overflow) {
   log(
     `Capping duplicate lookup at ${MAX_CANDIDATES} candidates — ${selection.candidate_overflow} confirmed findings not evaluated for filing`,
@@ -1462,38 +1496,7 @@ if (selection.candidate_overflow) {
 }
 if (selection.existing)
   log(`${selection.existing} findings skipped — a matching audit issue (any state) already exists`)
-
-const FILE_CHUNK = 10
-let issues = []
-if (DRY_RUN) {
-  log(`Dry run — would file ${toFile.length} issues`)
-  const dryRunReason = duplicateLookupError ? `dry_run: ${duplicateLookupError}` : 'dry_run'
-  issues = toFile.map((item) => preparedIssue(item.finding, dryRunReason))
-} else if (!setupComplete || duplicateLookupError) {
-  const reason = duplicateLookupError || 'gh unavailable'
-  issues = toFile.map((item) => preparedIssue(item.finding, reason))
-} else if (toFile.length) {
-  const chunks = []
-  for (let i = 0; i < toFile.length; i += FILE_CHUNK) chunks.push(toFile.slice(i, i + FILE_CHUNK))
-  const batches = await runBounded(chunks, (chunk, index) =>
-    safeAgent(fileBatchPrompt(chunk), {
-      label: `issues:batch-${index + 1}`,
-      phase: 'File',
-      schema: BATCH_ISSUE_SCHEMA,
-      model: 'haiku',
-      effort: 'low',
-    }),
-  )
-  issues = batches.flatMap((batch, chunkIndex) => {
-    const { results, failures: batchFailures } = normalizeFilingBatch(
-      chunks[chunkIndex].map((item) => item.finding),
-      batch,
-      `batch:${chunkIndex + 1}`,
-    )
-    failures.push(...batchFailures)
-    return results
-  })
-}
+if (DRY_RUN) log(`Dry run — would file ${toFile.length} issues`)
 
 const filed = issues.filter((issue) => issue.created)
 log(

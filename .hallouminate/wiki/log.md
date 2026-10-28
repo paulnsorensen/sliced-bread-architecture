@@ -16,3 +16,7 @@ Append-only journal of wiki-ingest decisions. Never a routing target.
 
 - 2026-10-19 · — · new-page · research/architecture-metrics-tooling/deterministic-vs-llm-checks.md · deterministic vs LLM check classification and ratchet proposal from session analysis
 - 2026-10-19 · — · merged · research/architecture-metrics-tooling/architecture-metrics-tooling.md · linked the classification page from Fit with the doctrine
+
+- 2026-08-17 · ee785cf8286f3ca2 · new-page · research/existing-architecture-analysis-tools/existing-architecture-analysis-tools.md · added the cited briesearch report on deterministic analyzer backends
+- 2026-08-17 · ee785cf8286f3ca2 · merged · research/slice-spine-review-prior-art/tools.md · added the reusable toolchain and the remaining Sliced Bread-specific adapter boundary
+- 2026-08-20 · — · new-page · research/crust-presentation-deep-modules/crust-presentation-deep-modules.md · imported crust-presentation research from the football repo

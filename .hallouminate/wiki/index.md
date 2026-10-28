@@ -49,3 +49,7 @@ docs site that consume it.
   tooling survey for measurable slice checks: which libraries, CLIs, and
   skills compute Martin's package metrics, connascence, reflexion/DSM
   conformance, and fitness functions; plus [[sources/slopcodebench]]
+- [[research/crust-presentation-deep-modules/crust-presentation-deep-modules]] —
+  how a crust should present a deep module so behavior reads clearly: doctrine
+  gap (no presentation form, no single-file crust doc convention, no delivery
+  crust term), APOSD interface-cost grounding, three observed Python forms

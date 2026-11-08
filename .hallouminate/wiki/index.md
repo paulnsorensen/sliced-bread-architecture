@@ -14,6 +14,8 @@ docs site that consume it.
   itself may be edited: the arrows/severity/growth-guards blocks originate
   in `reference/sliced-bread.md`; every consumer copy moves verbatim in the
   same commit, CI-checked for drift.
+- Doctrine-revision ADRs live in `docs/adr/`, not in the wiki. Wiki pages
+  such as [[architecture/crust-definition]] cite them and record the *why*.
 - `research/` holds imported prior-art research reports (briesearch
   output) — cited claim tables, one directory per research slug. Exempt
   from the one-page-per-decision rule; pages there are evidence, not
@@ -36,6 +38,9 @@ docs site that consume it.
 - [[architecture/skill-distribution]] — why the `skills/` tree is
   distributed by the dotfiles repo rather than this one, and what that
   means for unmerged skills
+- [[architecture/audit-tool-testing]] — how the dependency-free audit workflow
+  script is unit-tested despite its top-level `return`, and the traps in its
+  redaction, concurrency, and site-build seams
 - [[decisions/index]] — accepted ADRs backing this repository's design
   decisions, one page per decision
 - [[domain-model]] — cumulative ubiquitous language for the project (Slice,

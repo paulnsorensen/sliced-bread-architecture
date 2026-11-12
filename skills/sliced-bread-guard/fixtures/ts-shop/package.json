@@ -1,0 +1,10 @@
+{
+  "name": "ts-shop",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Sliced Bread fixture for the sliced-bread-guard acceptance test",
+  "devDependencies": {
+    "dependency-cruiser": "18.7.0",
+    "typescript": "5.9.3"
+  }
+}

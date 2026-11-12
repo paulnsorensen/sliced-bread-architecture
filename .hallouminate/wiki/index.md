@@ -45,3 +45,7 @@ docs site that consume it.
   tool/OSS/methodology combines human-guided sessions, whole-repo scope,
   per-file+test fan-out, and seam-disposition verdicts; terms of art and
   claim tables in sub-reports
+- [[research/architecture-metrics-tooling/architecture-metrics-tooling]] —
+  tooling survey for measurable slice checks: which libraries, CLIs, and
+  skills compute Martin's package metrics, connascence, reflexion/DSM
+  conformance, and fitness functions; plus [[sources/slopcodebench]]

@@ -363,6 +363,32 @@ test('duplicate-lookup fingerprints match the fingerprint embedded in the filed 
   assert.equal(capturedFingerprint, trailerMatch[1])
 })
 
+test('issue fingerprints normalise equivalent spellings of the finding path', async () => {
+  const { fileBatchPrompt, prepareForFiling } = await auditBoundaryHarness()
+  const finding = (file) => ({
+    slice: 's1',
+    file,
+    line: 12,
+    dimension: 'security',
+    severity: 'high',
+    claim: 'c',
+    evidence: 'e',
+    impact: 'i',
+    recommendation: 'r',
+    verification: 'confirmed',
+  })
+  const spellings = ['src/x.py', './src/x.py', '././src/x.py', 'src//x.py', './src///x.py']
+  const prepared = prepareForFiling(spellings.map(finding))
+  for (const item of prepared) {
+    assert.equal(item.fingerprint, 'sba:src/x.py:security:1')
+  }
+  const payloads = decodeHexPayload(fileBatchPrompt(prepared), 'PAYLOAD_HEX')
+  assert.equal(payloads.length, spellings.length)
+  for (const payload of payloads) {
+    assert.match(payload.body, /<!-- sba:src\/x\.py:security:1 -->$/)
+  }
+})
+
 test('audit filing outcomes enforce exclusive states', async () => {
   const { normalizeFilingBatch, normalizeFilingResult } = await auditBoundaryHarness()
   const finding = { file: 'src/payments/adapter.js', line: 42 }

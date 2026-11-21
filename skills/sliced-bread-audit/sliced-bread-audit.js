@@ -504,8 +504,14 @@ function lineBucket(line) {
   return Math.floor((line || 0) / 10)
 }
 
+function fingerprintPath(file) {
+  return String(file)
+    .replace(/\/{2,}/g, '/')
+    .replace(/^(?:\.\/)+/, '')
+}
+
 function issueFingerprint(f) {
-  return `sba:${f.file}:${f.dimension}:${lineBucket(f.line)}`
+  return `sba:${fingerprintPath(f.file)}:${f.dimension}:${lineBucket(f.line)}`
 }
 
 function findingLocation(f) {

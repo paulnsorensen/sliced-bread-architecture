@@ -29,7 +29,7 @@ An architecture ratchet lets an agent check that a change does not add violation
 Proposed shape, as a `sliced-bread-ratchet` skill or a measuring script in `sliced-bread-depth`:
 
 1. **Declared model.** A committed `slices.toml` lists slices, crust paths, and allowed dependencies. An LLM can draft it; a human approves it.
-2. **Measure.** One command per metric prints one number on its last line. All metrics are lower-is-better with tolerance 0: `forbidden_edges`, `cross_slice_cycles`, `internal_imports_across_crust`, `unused_declared_deps`, `sum_crust_share_excess`, `sum_D_over_slices`, and `eroded_mass_share`.
+2. **Measure.** One command per metric prints one number on its last line. All metrics are lower-is-better with tolerance 0: `forbidden_edges`, `cross_slice_cycles`, `internal_imports_across_crust`, `unused_declared_deps`, `sum_crust_share_excess`, `sum_D_over_slices`, and `eroded_mass_share`. A summed total can hide a regression in one slice when another slice improves. To block per-slice regressions, ratchet each slice value separately; otherwise the guarantee covers only the aggregate totals.
 3. **Gate.** A copy of `ratchet.py` in the repository runs `check` in CI. An agent runs the same check before publication, or a Stop hook runs it, so the agent sees a regression before review.
 4. **LLM layer outside the ratchet.** `sliced-bread-review` applies the judgment checks to the diff only, and its findings stay advisory. An LLM verdict is not deterministic, so a ratchet on it would flake. To make a judgment countable, an LLM proposes an annotation, a human commits it, and tools count it.
 

@@ -1,6 +1,6 @@
 # Architectural fitness functions — definition and executable libraries
 
-An architectural fitness function is any objective, automatable check of an architectural property. ArchUnit-family libraries are the usual way to run fitness functions as unit tests.
+An architectural fitness function is any objective check of an architectural property. The source taxonomy also allows manual fitness functions; this page covers the executable ones. ArchUnit-family libraries are the usual way to run fitness functions as unit tests.
 
 ## Fitness function taxonomy
 
@@ -31,7 +31,7 @@ Each metric on the related pages becomes a fitness function when it gets a thres
 
 ## Agent skills for fitness functions
 
-One mcpmarket listing, "Architectural Fitness Functions", describes periodic system-wide degradation checks. It was seen as a search snippet only and is unverified.
+One MCP Market listing, "Architectural Fitness Functions", describes periodic system-wide degradation checks. It was seen as a search snippet only and is unverified.
 
 ## Related pages
 

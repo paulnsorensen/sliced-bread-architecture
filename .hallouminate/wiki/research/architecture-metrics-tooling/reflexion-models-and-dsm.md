@@ -1,6 +1,6 @@
 # Reflexion models and DSMs — conformance tools for slice boundaries
 
-Reflexion models and dependency structure matrices (DSMs) compare intended architecture with actual dependencies. Modern linters implement the divergence half as forbidden-edge rules. Only `tach check --exact` reports the absence half.
+Reflexion models and dependency structure matrices (DSMs) compare intended architecture with actual dependencies. Modern linters implement the divergence half as forbidden-edge rules. Only `tach check --exact` gives an exact absence check for declared dependencies. dependency-cruiser `required` rules give a partial one.
 
 ## Reflexion model triple
 
@@ -27,7 +27,7 @@ Capabilities from primary docs read on 2026-10-19 (y = yes, partial, ? = not rea
 
 import-linter has five contract types: forbidden, protected, layers, independence, and acyclic_siblings. Its `protected` type allow-lists importers. It is not an "expose only X" rule.
 
-`tach check --exact` raises an error when `tach.toml` declares a dependency that the code does not use. This is the only reflexion-absence check found in this run.
+`tach check --exact` raises an error when `tach.toml` declares a dependency that the code does not use. This is the only exact reflexion-absence check for declared dependencies found in this run. dependency-cruiser `required` rules report a module that lacks a configured dependency, which is a partial absence check.
 
 ArchUnit `adhereToPlantUmlDiagram` checks code against a declared component diagram. Whether it reports declared-but-unused edges is not confirmed.
 

@@ -1,6 +1,6 @@
 # Martin package metrics — definitions and tools that compute them
 
-Robert C. Martin's package metrics measure how a package sits in the dependency graph. ArchUnit, PDepend, pyscn, and ArchUnitTS compute the full Ca/Ce/I/A/D set. dependency-cruiser computes Ca/Ce/I only.
+Robert C. Martin's package metrics measure how a package sits in the dependency graph. ArchUnit, PDepend, and pyscn compute the full Ca/Ce/I/A/D set. ArchUnitTS reports A, I, and D; its docs show no separate Ca and Ce outputs. dependency-cruiser computes Ca/Ce/I only.
 
 ## Definitions of the Martin metrics
 
@@ -21,7 +21,7 @@ Two principles govern the metrics. The Stable Dependencies Principle says to dep
 
 ## Martin metrics applied to Sliced Bread crusts
 
-A crust is the stable seam of a slice, so it should show high Ca and low I. Martin's A fits a facade crust poorly, because a facade is concrete, not abstract. ArchUnit already redefines A to count public classes, which is closer to a crust surface count.
+A crust is the stable seam of a slice. A candidate implication, not doctrine, is that a crust shows high Ca and low I. Martin's A fits a facade crust poorly, because a facade is concrete, not abstract. ArchUnit already redefines A to count public classes, which is closer to a crust surface count.
 
 ## Tools that compute the Martin metrics
 

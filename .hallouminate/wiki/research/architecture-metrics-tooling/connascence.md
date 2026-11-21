@@ -31,7 +31,7 @@ connascence.io evaluates each instance of connascence on three axes:
 - **Degree** — an entity connascent with many others is a bigger issue than one connascent with a few.
 - **Locality** — connascent elements close together are better than elements far apart.
 
-The working rule is: keep strong connascence local, and let only weak connascence cross a boundary. Refactoring reduces strength, reduces degree, or increases locality. For Sliced Bread, this means only name- and type-level connascence should cross a crust.
+The working rule is: keep strong connascence local, and let only weak connascence cross a boundary. Refactoring reduces strength, reduces degree, or increases locality. For Sliced Bread, this research suggests a candidate rule, not doctrine: only name- and type-level connascence crosses a crust.
 
 ## Tools and skills that detect connascence
 

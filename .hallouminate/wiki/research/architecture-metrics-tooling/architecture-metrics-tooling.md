@@ -6,11 +6,11 @@ Date: 2026-10-19. Question: has anyone codified Martin's package metrics, connas
 
 All four ideas exist as code, at very different maturity levels.
 
-- **Martin's package metrics** have the most mature tooling. Maintained tools compute the full Ca/Ce/I/A/D set in Java (ArchUnit), PHP (PDepend), Python (pyscn), and TypeScript (ArchUnitTS). dependency-cruiser computes only Ca/Ce/I. See [[research/architecture-metrics-tooling/martin-package-metrics]].
+- **Martin's package metrics** have the most mature tooling. Maintained tools compute the full Ca/Ce/I/A/D set in Java (ArchUnit), PHP (PDepend), and Python (pyscn). ArchUnitTS (TypeScript) reports A, I, and D; its docs show no separate Ca and Ce outputs. dependency-cruiser computes only Ca/Ce/I. See [[research/architecture-metrics-tooling/martin-package-metrics]].
 - **Connascence** has only small, new tools: two CLIs and two Claude skills, with 0–3 GitHub stars each. See [[research/architecture-metrics-tooling/connascence]].
-- **Reflexion-style conformance** is common as forbidden-edge rules (import-linter, tach, dependency-cruiser, ArchUnit). Only `tach check --exact` reports the reflexion "absence" case. See [[research/architecture-metrics-tooling/reflexion-models-and-dsm]].
+- **Reflexion-style conformance** is common as forbidden-edge rules (import-linter, tach, dependency-cruiser, ArchUnit). Only `tach check --exact` gives an exact reflexion "absence" check for declared dependencies. dependency-cruiser `required` rules give a partial one. See [[research/architecture-metrics-tooling/reflexion-models-and-dsm]].
 - **Fitness functions** are a framing, not a library. ArchUnit-family libraries are the usual executable form. See [[research/architecture-metrics-tooling/fitness-functions]].
-- **No tool computes an Ousterhout-style module-depth number.** The implementation-share ratio in `skills/sliced-bread-depth/SKILL.md:45-84` has no external equivalent in the sources checked.
+- **No tool in the sources checked computes an Ousterhout-style module-depth number.** The implementation-share ratio in `skills/sliced-bread-depth/SKILL.md:45-84` has no external equivalent in the sources checked.
 - **SlopCodeBench** measures how agent code degrades over iterations with an erosion metric (CC × √SLOC mass). See [[sources/slopcodebench]].
 
 ## Relation to earlier research

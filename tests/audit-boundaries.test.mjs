@@ -401,14 +401,14 @@ test('free-text finding fields cannot forge a fingerprint marker in the filed is
     severity: 'high',
     claim: `claim ${forged}`,
     evidence: `evidence ${forged}`,
-    impact: `impact ${forged}`,
+    impact: `impact ${forged} --!> closed`,
     recommendation: `recommendation ${forged}`,
     verification: `confirmed ${forged}`,
   }
   const [payload] = decodeHexPayload(fileBatchPrompt(prepareForFiling([finding])), 'PAYLOAD_HEX')
   const markers = payload.body.match(/<!--/g) || []
   assert.equal(markers.length, 1)
-  assert.equal((payload.body.match(/-->/g) || []).length, 1)
+  assert.equal((payload.body.match(/--!?>/g) || []).length, 1)
   assert.equal((payload.body.match(/<!-- sba:/g) || []).length, 1)
   assert.match(payload.body, /\n<!-- sba:src\/payments\/adapter\.js:security:4 -->$/)
   assert.doesNotMatch(payload.body, /sba:src\/billing\/ledger\.js:security:7 -->/)

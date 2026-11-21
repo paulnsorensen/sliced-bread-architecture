@@ -686,7 +686,9 @@ function getRedactionCount() {
 // Only the issue-body trailer may carry an HTML comment marker; a forged
 // `<!-- sba:... -->` in a finding field would suppress a real future finding.
 function issueField(text, limit) {
-  const neutralized = redactSecrets(text).replace(/<!--/g, '< !--').replace(/-->/g, '-- >')
+  const neutralized = redactSecrets(text)
+    .replace(/<!--/g, '< !--')
+    .replace(/--(!?)>/g, '--$1 >')
   return boundedText(neutralized, limit)
 }
 

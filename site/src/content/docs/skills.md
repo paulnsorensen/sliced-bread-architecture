@@ -15,6 +15,7 @@ directory ships agent tooling that enforces the architecture:
 | `sliced-bread-depth`         | Deep-module scoring that measures each slice's crust shape and implementation share.                            |
 | `sliced-bread-depth-ratchet` | Deterministic per-slice depth metrics with a baseline ratchet that reports, or opt-in blocks, shallower slices. |
 | `slice-and-spine-review`     | Human-led whole-repository seam review that walks slices, spine, and integration seams with verdicts.           |
+| `sliced-bread-guard`         | Deterministic CI guard that generates checker rules from a `slices.toml` map and holds a shrink-only baseline.  |
 
 <!-- skills:catalog:end -->
 

@@ -1,0 +1,40 @@
+# Installed by sliced-bread-guard. CODEOWNERS owns this file.
+name: Sliced Bread guard
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    name: Sliced Bread guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      # Install scripts could rewrite the vendored checker before it runs.
+      - run: npm ci --ignore-scripts
+      - name: Resolve the trusted base
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          # A PR compares against the immutable base of this event, not the moving branch tip.
+          if [ "$EVENT" = pull_request ]; then
+            echo "SBGUARD_BASE=$PR_BASE_SHA" >> "$GITHUB_ENV"
+          elif [ -n "$PUSH_BEFORE" ] && [ "$PUSH_BEFORE" != 0000000000000000000000000000000000000000 ]; then
+            echo "SBGUARD_BASE=$PUSH_BEFORE" >> "$GITHUB_ENV"
+          else
+            echo "::error::no trusted base for this event" && exit 2
+          fi
+      - name: Check architecture rules and config drift
+        run: python3 tools/sliced-bread-guard/sbguard.py check --base "$SBGUARD_BASE" --strict

@@ -38,3 +38,16 @@ No tool ships the described human+AI whole-repo seam-hunting workflow. The job i
 Certain on scope/status claims (12 of 16 tools verified against primary vendor docs or unambiguous acquisition/deprecation announcements); speculating on Cody/Amp boundary-analysis mechanics (third-party 2026 reviews only).
 
 Note: this file was reconstructed by the parent from agent A's returned digest after a same-path overwrite; the claim table is verbatim from the agent's return.
+
+## Deterministic calculation backends
+
+Deterministic calculation backends already cover most of the arithmetic that `slice-and-spine-review` should not ask an LLM to reproduce. A 2026-08-17 follow-up survey found no single open-source tool for the whole workflow, but it found reusable components for every major evidence family.
+
+- **History and mass:** `scc` exposes JSON/MCP analyses for per-file LOC, complexity, hotspots, and temporal coupling. Its coupling implementation retains raw commit counts, folds renames, ignores one-off pairs, caps bulk commits, and derives symmetric Jaccard-style coupling. Code Maat adds pre-analysis grouping suitable for slice-level coupling; CodeScene supplies commercial component-level coupling and hotspots.
+- **Static topology:** dependency-cruiser covers JavaScript/TypeScript imports and cycles; Grimp provides a directed Python import graph; Joern provides a heavier cross-language code-property graph with call-site queries and GraphML/GraphSON export.
+- **Graph arithmetic:** NetworkX can derive fan-in/out, strongly connected components, cycles, reachability, dominators, density, and centrality from a normalized directed graph.
+- **Other evidence:** `jscpd` emits machine-readable clone ranges and duplication totals. DV8 accepts custom dependency data and calculates commercial DSM/modularity measures.
+
+The remaining work is Sliced Bread-specific rather than general analysis: map files and symbols to slices, crusts, spine, and seam kinds; aggregate file evidence without double counting; derive L0-L4 link levels and stable walk order; calculate dossier staleness and review coverage; and preserve the human disposition. The full capability matrix, licensing caveats, and primary-source claim table live in [[research/existing-architecture-analysis-tools/existing-architecture-analysis-tools]].
+
+_Source: [[research/existing-architecture-analysis-tools/existing-architecture-analysis-tools]] · Updated: 2026-08-17 · Supersedes: none_

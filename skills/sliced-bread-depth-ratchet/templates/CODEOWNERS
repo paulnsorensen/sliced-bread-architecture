@@ -1,0 +1,7 @@
+# Depth ratchet: a human owns the slice map, the baseline, and the gate.
+# Replace @your-org/architecture with the team that approves depth trade-offs.
+# Enable "Require review from Code Owners" on the default branch, or these lines name reviewers only.
+/slices.toml                          @your-org/architecture
+/depth-ratchet.json                   @your-org/architecture
+/tools/sliced-bread-depth-ratchet/    @your-org/architecture
+/.github/workflows/depth-ratchet.yml  @your-org/architecture

@@ -10,7 +10,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.43.1",
+    "@astrojs/starlight": "^0.41.11",
     "@cheeselord/design": "^0.6.0",
     "astro": "^7.4.12"
   },

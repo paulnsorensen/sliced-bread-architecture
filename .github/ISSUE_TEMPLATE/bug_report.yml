@@ -39,8 +39,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: Version / commit
-      description: Output of `<tool> --version` or the commit SHA.
+      label: Commit SHA or site URL
+      description: The commit SHA you used, or the URL of the documentation page.
     validations:
       required: true
 
@@ -66,5 +66,3 @@ body:
       options:
         - label: I searched existing issues and this is not a duplicate
           required: true
-        - label: I am running the latest released version
-          required: false

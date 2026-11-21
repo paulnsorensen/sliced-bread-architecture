@@ -16,7 +16,7 @@ What it does:
 Copy the script into your Claude Code workflows directory:
 
 ```bash
-cp sliced-bread-audit.js ~/.claude/workflows/
+cp skills/sliced-bread-audit/sliced-bread-audit.js ~/.claude/workflows/
 ```
 
 ## Usage
@@ -31,6 +31,17 @@ Or with object args:
 { scope?: string, min_severity?: 'blocker'|'high'|'medium'|'low',
   dry_run?: boolean, max_issues?: number, max_candidates?: number, workers?: number }
 ```
+
+| Arg              | Default  | Accepted values                                                                                                     |
+| ---------------- | -------- | ------------------------------------------------------------------------------------------------------------------- |
+| `scope`          | `.`      | Any path string.                                                                                                    |
+| `min_severity`   | `medium` | `blocker`, `high`, `medium`, or `low`. Findings below it are dropped, so `low` findings appear only when requested. |
+| `dry_run`        | `false`  | `true` or `false`.                                                                                                  |
+| `max_issues`     | `25`     | An integer from 1 to 100.                                                                                           |
+| `max_candidates` | `100`    | An integer from 1 to 500, and at least `max_issues`.                                                                |
+| `workers`        | `4`      | An integer from 1 to 16.                                                                                            |
+
+An invalid value returns `{ error: ... }` and the run stops before it starts any work.
 
 Requires `gh` auth in the target repo. Findings return as one flat `confirmed` list; every record carries `area: architecture | quality`. The architecture rubric is inlined, so the workflow runs without reading external doctrine files.
 

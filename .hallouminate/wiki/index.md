@@ -15,8 +15,11 @@ docs site that consume it.
   itself may be edited: the arrows/severity/growth-guards blocks originate
   in `reference/sliced-bread.md`; every consumer copy moves verbatim in the
   same commit, CI-checked for drift.
-- Doctrine-revision ADRs live in `docs/adr/`, not in the wiki. Wiki pages
-  such as [[architecture/crust-definition]] cite them and record the _why_.
+- Doctrine-revision ADRs (`docs/adr/sliced-bread-doctrine-revision-*.md`)
+  live in `docs/adr/`, not in the wiki, and are never mirrored into
+  `decisions/`. Wiki pages such as [[architecture/crust-definition]] cite
+  them inline and record the _why_. The `decisions/` namespace holds only
+  `slice-and-spine-review` design ADRs, which have no `docs/adr` counterpart.
 - `research/` holds imported prior-art research reports (briesearch
   output) — cited claim tables, one directory per research slug. Exempt
   from the one-page-per-decision rule; pages there are evidence, not

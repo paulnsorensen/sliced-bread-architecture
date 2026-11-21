@@ -23,7 +23,7 @@ git clone https://github.com/paulnsorensen/sliced-bread-architecture.git
 cd sliced-bread-architecture
 npm --prefix site ci
 npm exec --prefix site -- prettier --check .
-npx markdownlint-cli2@0.23.2
+npx markdownlint-cli2@0.24.0
 node scripts/check-contracts.mjs
 node --test tests/check-contracts.test.mjs
 node --test tests/audit-boundaries.test.mjs

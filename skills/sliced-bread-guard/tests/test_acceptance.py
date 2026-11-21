@@ -17,8 +17,11 @@ from pathlib import Path
 SKILL = Path(__file__).resolve().parents[1]
 FIXTURE = SKILL / 'fixtures' / 'ts-shop'
 CLI = SKILL / 'scripts' / 'sbguard.py'
+# Drop repository-locating variables (`git rev-parse --local-env-vars`) so an outer
+# repository, hook, or worktree cannot redirect the fixture's git commands.
 GIT_ENV = {
-    **os.environ,
+    **{k: v for k, v in os.environ.items() if k not in subprocess.run(
+        ['git', 'rev-parse', '--local-env-vars'], capture_output=True, text=True, check=True).stdout.split()},
     'GIT_AUTHOR_NAME': 'fixture',
     'GIT_AUTHOR_EMAIL': 'fixture@example.invalid',
     'GIT_COMMITTER_NAME': 'fixture',

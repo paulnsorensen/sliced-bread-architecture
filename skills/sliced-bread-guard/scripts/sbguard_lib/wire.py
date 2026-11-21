@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from . import repo
+from .model import ConfigError
 
 SKILL_ROOT = Path(__file__).resolve().parents[2]
 VENDOR_DIR = 'tools/sliced-bread-guard'
@@ -56,14 +57,16 @@ def _place(root: Path, relative: str, content: str, source: Path, lines: list[st
 
 
 def wire(root: Path, activate: bool) -> tuple[int, list[str]]:
+    scripts = SKILL_ROOT / 'scripts'
+    templates = SKILL_ROOT / 'templates'
+    if not (scripts / 'sbguard.py').is_file() or not templates.is_dir():
+        raise ConfigError(f'wire runs only from the skill copy; {SKILL_ROOT} has no scripts/ and templates/')
     lines: list[str] = []
     ok = True
-    scripts = SKILL_ROOT / 'scripts'
     sources = [scripts / 'sbguard.py', *sorted((scripts / 'sbguard_lib').glob('*.py'))]
     for source in sources:
         relative = f'{VENDOR_DIR}/{source.relative_to(scripts).as_posix()}'
         ok &= _place(root, relative, source.read_text(encoding='utf8'), source, lines)
-    templates = SKILL_ROOT / 'templates'
     workflow = templates / 'sliced-bread-guard.yml'
     ok &= _place(root, WORKFLOW, workflow.read_text(encoding='utf8'), workflow, lines)
 

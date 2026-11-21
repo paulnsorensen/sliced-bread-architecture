@@ -27,6 +27,7 @@ For other languages, stop after Step 1 and report that no backend exists yet.
 
 In the commands below, `GUARD` is `python3 <skill>/scripts/sbguard.py --root <repo>` before Step 5.
 After Step 5, use the vendored copy: `python3 tools/sliced-bread-guard/sbguard.py`.
+Always run `wire` from the skill copy; the vendored copy has no templates and exits 2.
 
 ## Step 1 — Detect
 
@@ -87,7 +88,7 @@ Run `GUARD wire`, then show the user each line it prints.
 - It never overwrites a file with different content, including the vendored CLI; it prints `CONFLICT`, exits 1, and you merge by hand.
   To upgrade the vendored CLI, delete `tools/sliced-bread-guard/` and run `wire` again.
 
-Ask the user before `GUARD wire --activate`; it sets `core.hooksPath` for this clone.
+Ask the user before `python3 <skill>/scripts/sbguard.py --root <repo> wire --activate`; it sets `core.hooksPath` for this clone.
 Give the user the lines in [`templates/CODEOWNERS`](templates/CODEOWNERS).
 Tell the user that CODEOWNERS protects nothing until branch protection requires code-owner review.
 

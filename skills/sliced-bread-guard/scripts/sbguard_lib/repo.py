@@ -15,8 +15,29 @@ class GitError(Exception):
     """A git command failed or a required ref does not exist."""
 
 
-def git(root: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess:
-    run = subprocess.run(['git', '-C', str(root), *args], capture_output=True, text=True)
+# The variables that `git rev-parse --local-env-vars` lists. Each one can point
+# git at another repository, object store, worktree, or index than `-C root`.
+REPO_ENV_VARS = (
+    'GIT_ALTERNATE_OBJECT_DIRECTORIES', 'GIT_CONFIG', 'GIT_CONFIG_PARAMETERS', 'GIT_CONFIG_COUNT',
+    'GIT_OBJECT_DIRECTORY', 'GIT_DIR', 'GIT_WORK_TREE', 'GIT_IMPLICIT_WORK_TREE', 'GIT_GRAFT_FILE',
+    'GIT_INDEX_FILE', 'GIT_NO_REPLACE_OBJECTS', 'GIT_REPLACE_REF_BASE', 'GIT_PREFIX',
+    'GIT_SHALLOW_FILE', 'GIT_COMMON_DIR',
+)
+
+
+def scrubbed_env(*, keep_index: bool = False) -> dict[str, str]:
+    """Return os.environ without repository-locating variables.
+
+    keep_index keeps GIT_INDEX_FILE: a pre-commit hook gets the index to check there.
+    """
+    keep = {'GIT_INDEX_FILE'} if keep_index else set()
+    return {k: v for k, v in os.environ.items() if k not in REPO_ENV_VARS or k in keep}
+
+
+def git(root: Path, *args: str, check: bool = True, keep_index: bool = False) -> subprocess.CompletedProcess:
+    run = subprocess.run(
+        ['git', '-C', str(root), *args], capture_output=True, text=True, env=scrubbed_env(keep_index=keep_index)
+    )
     if check and run.returncode != 0:
         raise GitError(f'git {" ".join(args)} failed: {run.stderr.strip()}')
     return run
@@ -26,7 +47,7 @@ def tracked_files(root: Path, *, staged: bool) -> list[str]:
     args = ['ls-files', '-z', '--cached']
     if not staged:
         args += ['--others', '--exclude-standard']
-    names = git(root, *args).stdout.split('\0')
+    names = git(root, *args, keep_index=staged).stdout.split('\0')
     present = {n for n in names if n}
     if not staged:
         deleted = git(root, 'ls-files', '-z', '--deleted').stdout.split('\0')
@@ -61,7 +82,7 @@ def staged_snapshot(root: Path) -> Iterator[Path]:
     """Export the index to a temporary directory so the check sees staged content only."""
     with tempfile.TemporaryDirectory(prefix='sbguard-staged-') as scratch:
         target = Path(scratch)
-        git(root, 'checkout-index', '--all', f'--prefix={target}/')
+        git(root, 'checkout-index', '--all', f'--prefix={target}/', keep_index=True)
         _link_node_modules(root, target)
         yield target
 

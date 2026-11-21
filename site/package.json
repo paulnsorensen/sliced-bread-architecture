@@ -10,12 +10,12 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.41.11",
-    "@cheeselord/design": "^0.5.0",
-    "astro": "^7.4.11"
+    "@astrojs/starlight": "^0.43.1",
+    "@cheeselord/design": "^0.6.0",
+    "astro": "^7.4.12"
   },
   "devDependencies": {
-    "prettier": "3.9.6"
+    "prettier": "3.10.1"
   },
   "allowScripts": {
     "esbuild@0.28.1": true

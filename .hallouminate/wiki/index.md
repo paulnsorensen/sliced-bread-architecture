@@ -45,6 +45,8 @@ docs site that consume it.
 - [[architecture/audit-tool-testing]] — how the dependency-free audit workflow
   script is unit-tested despite its top-level `return`, and the traps in its
   redaction, concurrency, and site-build seams
+- [[architecture/sliced-bread-guard]] — why the deterministic CI guard compares
+  identity sets against a shrink-only baseline, and where its trust boundary ends
 - [[decisions/index]] — accepted ADRs backing this repository's design
   decisions, one page per decision
 - [[domain-model]] — cumulative ubiquitous language for the project (Slice,

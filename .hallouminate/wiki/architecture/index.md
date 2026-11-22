@@ -10,5 +10,6 @@
 - [framework-leaning](./framework-leaning.md) — Leaning into the framework
 - [growth-signals-advisory](./growth-signals-advisory.md) — Growth is pressure-first
 - [skill-distribution](./skill-distribution.md) — Skill distribution
+- [sliced-bread-guard](./sliced-bread-guard.md) — Sliced Bread guard
 
 <!-- HALLOUMINATE:INDEX-END -->

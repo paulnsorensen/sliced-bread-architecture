@@ -22,3 +22,5 @@ Append-only journal of wiki-ingest decisions. Never a routing target.
 - 2026-08-20 · — · new-page · research/crust-presentation-deep-modules/crust-presentation-deep-modules.md · imported crust-presentation research from the football repo
 
 - 2026-10-24 · cf17ebc5706fd025 · merged · research/architecture-metrics-tooling/deterministic-vs-llm-checks.md · depth ratchet prototype as built (per-slice keys, ADR-003 report/block, TS 5.9.3 pin); supersedes the summed metrics in the proposal
+
+- 2026-11-22 · — · new-page · architecture/sliced-bread-guard.md · guard prototype (#69) had no page; records identity-set gate, shrink-only baseline, and trust-boundary gotchas
